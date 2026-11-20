@@ -54,3 +54,6 @@ rm-containers:
 # Command to prune unused Docker data
 prune:
 	docker system prune -f --volumes
+
+killall:
+	docker kill $(docker ps -q)
