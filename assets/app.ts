@@ -5,7 +5,7 @@ import './stimulus_bootstrap.js';
  * This file will be included onto the page via the importmap() Twig function,
  * which should already be in your base.html.twig.
  */
-import '../vendor/twbs/bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // import { } from '../vendor/twbs/bootstrap/js/dist/index.js';
 
