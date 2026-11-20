@@ -24,7 +24,16 @@
  */
 return [
     'app' => ['path' => './assets/app.js', 'entrypoint' => true],
-    '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
+    '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@hotwired/turbo' => ['version' => '8.0.23'],
+    'bootstrap' => ['version' => '6.0.0-alpha.1'],
+    '@floating-ui/dom' => ['version' => '1.8.0'],
+    'vanilla-calendar-pro' => ['version' => '3.4.0'],
+    'bootstrap/dist/css/bootstrap.min.css' => ['version' => '6.0.0-alpha.1', 'type' => 'css'],
+    '@floating-ui/core' => ['version' => '1.8.0'],
+    '@floating-ui/utils' => ['version' => '0.2.12'],
+    '@floating-ui/utils/dom' => ['version' => '0.2.12'],
+    'vanilla-calendar-pro/styles/index.min.css' => ['version' => '3.4.0', 'type' => 'css'],
+    'lucide' => ['version' => '1.77.0'],
 ];
