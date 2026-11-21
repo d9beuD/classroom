@@ -15,7 +15,14 @@
       </div>
 
       <div class="drawer-body mb-2 md:mb-0">
-        <ul class="nav navbar-nav me-auto"></ul>
+        <ul class="nav navbar-nav me-auto">
+          <li class="nav-item">
+            <a href="{{ path('app_course_index') }}" class="nav-link">
+              <i data-lucide="presentation"></i>
+              Cours
+            </a>
+          </li>
+        </ul>
         <ul class="nav navbar-nav">
           {% if is_granted('ROLE_USER') %}
             <li class="nav-item">
