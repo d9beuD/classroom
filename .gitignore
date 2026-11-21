@@ -18,3 +18,7 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> npm (type declarations only) ###
+/node_modules/
+###< npm ###

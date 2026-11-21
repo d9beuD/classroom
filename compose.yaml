@@ -39,6 +39,7 @@ services:
       - caddy_config:/config
     depends_on:
       - database
+    restart: unless-stopped
 
 volumes:
   database_data:

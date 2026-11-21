@@ -1,0 +1,167 @@
+{# Bootstrap 6 form theme: Bootstrap 5 theme, with only the markup that changed in v6 overridden. #}
+{# form_div_layout comes first so its blocks are reachable under base_* aliases; bootstrap_5 then wins for the rest. #}
+{% use 'form_div_layout.html.twig' with
+    form_widget_simple as base_form_widget_simple,
+    checkbox_widget as base_checkbox_widget,
+    radio_widget as base_radio_widget,
+    choice_widget_collapsed as base_choice_widget_collapsed,
+    button_widget as base_button_widget,
+    form_label as base_form_label
+%}
+{% use 'bootstrap_5_layout.html.twig' %}
+
+{# Widgets #}
+
+{% block form_widget_simple -%}
+    {%- set type = type|default('text') -%}
+    {%- if type != 'hidden' -%}
+        {%- set widget_class = type == 'range' ? 'form-range-input' : (type == 'color' ? 'form-control form-control-color' : 'form-control') -%}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' ' ~ widget_class)|trim}) -%}
+    {%- endif -%}
+    {%- if type == 'range' -%}
+        {#- The fill/bubble need Bootstrap's Range plugin (auto-initialised). -#}
+        <div class="form-range">{{- block('base_form_widget_simple') -}}</div>
+    {%- else -%}
+        {{- block('base_form_widget_simple') -}}
+    {%- endif -%}
+{%- endblock form_widget_simple %}
+
+{%- block button_widget -%}
+    {%- set attr = attr|merge({class: attr.class|default('btn-solid theme-secondary')}) -%}
+    {{- block('base_button_widget') -}}
+{%- endblock button_widget %}
+
+{%- block submit_widget -%}
+    {%- set type = type|default('submit') -%}
+    {%- set attr = attr|merge({class: attr.class|default('btn-solid theme-primary')}) -%}
+    {{- block('base_button_widget') -}}
+{%- endblock submit_widget %}
+
+{%- block choice_widget_collapsed -%}
+    {#- v6 dropped .form-select: selects use .form-control. -#}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) -%}
+    {{- block('base_choice_widget_collapsed') -}}
+{%- endblock choice_widget_collapsed %}
+
+{%- block checkbox_widget -%}
+    {%- set parent_label_class = parent_label_class|default(label_attr.class|default('')) -%}
+    {%- set is_switch = 'checkbox-switch' in parent_label_class -%}
+    {%- if is_switch -%}
+        {%- set attr = attr|merge({role: 'switch', switch: true}) -%}
+    {%- else -%}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' check')|trim}) -%}
+    {%- endif -%}
+    {%- set widget -%}
+        {%- if is_switch %}<div class="switch">{% endif -%}
+        {{- block('base_checkbox_widget') -}}
+        {%- if is_switch %}</div>{% endif -%}
+    {%- endset -%}
+    {{- block('check_widget_render') -}}
+{%- endblock checkbox_widget %}
+
+{%- block radio_widget -%}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' radio')|trim}) -%}
+    {%- set widget = block('base_radio_widget') -%}
+    {{- block('check_widget_render') -}}
+{%- endblock radio_widget %}
+
+{#- Input + label. A row is already a .form-field; choices of an expanded choice need their own. -#}
+{%- block check_widget_render -%}
+    {%- if check_in_choice|default(false) -%}
+        <div class="form-field">{{- form_label(form, null, {widget: widget}) -}}</div>
+    {%- else -%}
+        {{- form_label(form, null, {widget: widget}) -}}
+    {%- endif -%}
+{%- endblock check_widget_render %}
+
+{%- block choice_widget_expanded -%}
+    {#- No .form-check-inline in v6: inline choices are a wrapping flex row. -#}
+    {%- set inline = '-inline' in label_attr.class|default('') -%}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ (inline ? ' d-flex flex-wrap gap-3' : ' form-group'))|trim}) -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- for child in form %}
+            {{- form_widget(child, {
+                parent_label_class: label_attr.class|default(''),
+                translation_domain: choice_translation_domain,
+                valid: valid,
+                check_in_choice: true,
+            }) -}}
+        {% endfor -%}
+    </div>
+{%- endblock choice_widget_expanded %}
+
+{# Labels #}
+
+{%- block form_label -%}
+    {%- if label is not same as(false) and compound is defined and compound -%}
+        {%- set parent_label_class = parent_label_class|default(label_attr.class|default('')) -%}
+        {%- if 'col-form-label' not in parent_label_class -%}
+            {#- Legend of a .form-group (bootstrap_5 would add col-form-label). -#}
+            {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' form-label')|trim}) -%}
+            {%- set element = 'legend' -%}
+            {{- block('base_form_label') -}}
+        {%- else -%}
+            {{- parent() -}}
+        {%- endif -%}
+    {%- else -%}
+        {{- parent() -}}
+    {%- endif -%}
+{%- endblock form_label %}
+
+{%- block checkbox_radio_label -%}
+    {#- Do not display the label if widget is not defined in order to prevent double label rendering -#}
+    {%- if widget is defined -%}
+        {%- set label_attr_class = label_attr.class|default('') ~ ' ' ~ parent_label_class|default('') -%}
+        {%- set label_attr_class = label_attr_class|replace({'checkbox-inline': '', 'radio-inline': '', 'checkbox-switch': ''}) -%}
+        {%- if required -%}
+            {%- set label_attr_class = label_attr_class ~ ' required' -%}
+        {%- endif -%}
+        {%- set label_attr = label_attr|merge({class: label_attr_class|trim}) -%}
+        {%- if not compound -%}
+            {%- set label_attr = label_attr|merge({for: id}) -%}
+        {%- endif -%}
+        {%- if label_attr.class is empty -%}
+            {%- set label_attr = label_attr|filter((v, k) => k != 'class') -%}
+        {%- endif -%}
+
+        {{ widget|raw }}
+        <label{% with {attr: label_attr} %}{{ block('attributes') }}{% endwith %}>
+            {%- if label is not same as(false) -%}
+                {{- block('form_label_content') -}}
+            {%- endif -%}
+        </label>
+    {%- endif -%}
+{%- endblock checkbox_radio_label %}
+
+{# Rows #}
+
+{%- block form_row_render -%}
+    {%- if compound is defined and compound -%}
+        {%- set element = 'fieldset' -%}
+    {%- endif -%}
+    {%- set row_class = row_class|default(row_attr.class|default((element|default('div') == 'fieldset' ? 'form-group' : 'form-field') ~ ' mb-3')|trim) -%}
+    <{{ element|default('div') }}{% with {attr: row_attr|merge({class: row_class})} %}{{ block('attributes') }}{% endwith %}>
+        {#- v6 floating labels also put the label first. -#}
+        {{- form_label(form) -}}
+        {{- form_widget(form, widget_attr) -}}
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </{{ element|default('div') }}>
+{%- endblock form_row_render %}
+
+{# App-specific rows #}
+
+{% block _registration_form_plainPassword_row %}
+    <div class="form-field mb-3">
+        {{- form_label(form) -}}
+        {{- form_widget(form, widget_attr|default({})) -}}
+        <div class="strength" data-bs-strength data-bs-min-length="8" style="margin-top: calc(var(--bs-spacer-1) * -1);">
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+            <div class="strength-segment"></div>
+        </div>
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{% endblock %}

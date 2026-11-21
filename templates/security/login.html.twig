@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="md:col-6 lg:col-4 md:ms-auto">
+        <h1>Connexion</h1>
+
+        {{ form_errors(form) }}
+
+        {{ form_start(form) }}
+          {{ form_widget(form) }}
+          <button class="btn-subtle theme-primary hover-lift mt-3" type="submit">
+              Se connecter
+              <i data-lucide="arrow-right"></i>
+          </button>
+          <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

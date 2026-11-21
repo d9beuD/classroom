@@ -7,7 +7,11 @@
         "strict": true,
         "allowJs": true,
         "skipLibCheck": true,
-        "noEmit": true
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "paths": {
+            "@symfony/stimulus-bundle": ["./vendor/symfony/stimulus-bundle/assets/dist/loader.d.ts"]
+        }
     },
     "include": ["assets/**/*", "types/**/*.d.ts"],
     "exclude": ["assets/vendor"]

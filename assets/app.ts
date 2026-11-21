@@ -7,6 +7,3 @@ import './stimulus_bootstrap.js';
  */
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// import { } from '../vendor/twbs/bootstrap/js/dist/index.js';
-
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
