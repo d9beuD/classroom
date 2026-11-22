@@ -39,12 +39,6 @@ class ChapterType extends AbstractType
                 'allow_delete' => true,
                 'by_reference' => false,
                 'label' => false,
-                'button_add_options' => [
-                    'label' => 'Ajouter',
-                    'attr' => [
-                        'class' => 'btn-subtle theme-primary',
-                    ],
-                ],
                 'button_delete_options' => [
                     'label' => 'Supprimer',
                     'attr' => [
