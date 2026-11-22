@@ -4,7 +4,9 @@
     {{ form_row(form.excerpt) }}
     {{ form_row(form.position) }}
 
-    {% for section in form.sections %}
+    {# Sorted by position so a re-render after a drag-and-drop keeps the new order. #}
+    <div data-controller="sortable">
+    {% for section in form.sections.children|sort((a, b) => a.position.vars.value <=> b.position.vars.value) %}
       {% set type = enum('App\\EntityEnum\\ChapterSectionType').tryFrom(section.type.vars.value) %}
       {# Not rendered = not submitted, so the form clears variant for non-callout sections. #}
       {% if type != enum('App\\EntityEnum\\ChapterSectionType').Callout %}
@@ -13,7 +15,7 @@
       <div class="card mb-3">
         <div class="card-header d-flex flex-row justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn-icon btn-text" aria-label="Déplacer" title="Déplacer">
+            <button type="button" class="btn-icon btn-text" aria-label="Déplacer" title="Déplacer" data-sortable-handle>
               <i data-lucide="grip-vertical" aria-hidden="true"></i>
             </button>
             {{ type ? type.label }}
@@ -25,6 +27,7 @@
         </div>
       </div>
     {% endfor %}
+    </div>
     {% do form.sections.setRendered %}
 
     {# Ignored by live re-renders: Floating UI's inline styles on .menu would otherwise be carried onto whatever node the morph reuses it for. #}

@@ -22,3 +22,12 @@
     min-width: 14rem;
   }
 }
+
+/* Element selector so it beats .btn-icon's cursor: pointer. */
+button[data-sortable-handle] {
+  cursor: grab;
+}
+
+button[data-sortable-handle]:active {
+  cursor: grabbing;
+}

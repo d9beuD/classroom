@@ -37,4 +37,5 @@ return [
     'vanilla-calendar-pro/styles/index.min.css' => ['version' => '3.4.0', 'type' => 'css'],
     'lucide' => ['version' => '1.77.0'],
     '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
+    'sortablejs' => ['version' => '1.15.7'],
 ];
