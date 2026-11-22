@@ -2,14 +2,18 @@
 
 namespace App\Entity;
 
+use App\Entity\EntityInterface\SluggableInterface;
+use App\EntityTrait\SluggableTrait;
 use App\Repository\ChapterRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChapterRepository::class)]
-class Chapter
+class Chapter implements SluggableInterface
 {
+    use SluggableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -39,6 +43,9 @@ class Chapter
 
     #[ORM\Column]
     private ?int $position = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
 
     public function __construct()
     {
@@ -157,5 +164,10 @@ class Chapter
         $this->position = $position;
 
         return $this;
+    }
+
+    public function getSluggableText(): string
+    {
+        return $this->title;
     }
 }

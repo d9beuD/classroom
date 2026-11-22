@@ -1,0 +1,14 @@
+{{ form_start(form) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.excerpt) }}
+    {{ form_row(form.position) }}
+
+    <div class="d-none">
+      {{ form_row(form.course) }}
+    </div>
+
+    <div class="text-end">
+      <button class="btn-subtle theme-primary">{{ button_label|default('Créer') }}</button>
+      <a href="{{ path('app_course_overview', { slug: course.slug }) }}" class="btn-subtle">Annuler</a>
+    </div>
+{{ form_end(form) }}

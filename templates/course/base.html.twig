@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des cours{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="md:col-auto">
+        {{ component('CoursesMenu') }}
+      </div>
+
+      <div class="col" style="container-type: inline-size;">
+        {% block breadcrumb %}{% endblock %}
+        {% block main %}{% endblock %}
+      </div>
+
+      <div class="col-12 xl:col-auto course-aside">
+        {% block toc %}{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'course/base.html.twig' %}
+
+{% block title %}{{ course.label }}{% endblock %}
+
+{% block main %}
+    <h1>{{ course.label }}</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 my-5">
+      {% if is_granted('ROLE_PROFESSOR') %}
+        <a href="{{ path('app_chapter_new', { courseSlug: course.slug }) }}" class="d-block text-decoration-none bg-1 hover-bg-2 rounded-3 p-3">
+          <strong class="d-block mb-0">
+            <i data-lucide="plus"></i>
+            Nouveau chapitre
+          </strong>
+          <span class="fg-3">Ajouter du contenu au cours.</span>
+        </a>
+        {% endif %}
+
+        {% for chapter in chapters %}
+          <a
+            href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}"
+            class="d-block text-decoration-none bg-1 hover-bg-2 rounded-3 p-3"
+          >
+            <strong class="d-block mb-0">
+              {{ chapter.title }}
+            </strong>
+            <span class="fg-3">
+              {{ chapter.excerpt }}
+            </span>
+          </a>
+      {% endfor %}
+    </div>
+
+    <a href="{{ path('app_course_index') }}">back to list</a>
+
+    <a href="{{ path('app_course_edit', {'slug': course.slug}) }}">edit</a>
+
+    {{ include('course/_delete_form.html.twig') }}
+{% endblock %}

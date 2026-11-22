@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Form\CourseType;
+use App\Repository\ChapterRepository;
 use App\Repository\CourseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +19,7 @@ final class CourseController extends AbstractController
     public function index(CourseRepository $courseRepository): Response
     {
         return $this->render('course/index.html.twig', [
-            'courses' => $courseRepository->findAll(),
+            'courses' => $courseRepository->findAllWithChapters(),
         ]);
     }
 
@@ -42,15 +43,16 @@ final class CourseController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_course_show', methods: ['GET'])]
-    public function show(Course $course): Response
+    #[Route('/{slug:course}/overview', name: 'app_course_overview', methods: ['GET'])]
+    public function overview(Course $course, ChapterRepository $chapterRepository): Response
     {
-        return $this->render('course/show.html.twig', [
+        return $this->render('course/overview.html.twig', [
             'course' => $course,
+            'chapters' => $chapterRepository->findBy(['course' => $course]),
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_course_edit', methods: ['GET', 'POST'])]
+    #[Route('/{slug:course}/edit', name: 'app_course_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Course $course, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CourseType::class, $course);
@@ -68,7 +70,7 @@ final class CourseController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_course_delete', methods: ['POST'])]
+    #[Route('/{slug:course}', name: 'app_course_delete', methods: ['POST'])]
     public function delete(Request $request, Course $course, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->getPayload()->getString('_token'))) {

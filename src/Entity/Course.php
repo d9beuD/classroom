@@ -2,14 +2,18 @@
 
 namespace App\Entity;
 
+use App\Entity\EntityInterface\SluggableInterface;
+use App\EntityTrait\SluggableTrait;
 use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
-class Course
+class Course implements SluggableInterface
 {
+    use SluggableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -119,5 +123,10 @@ class Course
         }
 
         return $this;
+    }
+
+    public function getSluggableText(): string
+    {
+        return $this->label;
     }
 }

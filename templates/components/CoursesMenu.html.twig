@@ -1,0 +1,42 @@
+<aside{{ attributes }} class="course-aside">
+  <button type="button" class="btn-subtle md:d-none" data-bs-toggle="drawer" data-bs-target="#courses-drawer" aria-controls="courses-drawer">
+    Ouvrir la liste
+  </button>
+
+  <dialog class="md:drawer drawer-start" id="courses-drawer" aria-labelledby="courses-drawer-label">
+    <div class="drawer-header">
+      <h5 class="drawer-title" id="courses-drawer-label">Cours disponibles</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fermer"></button>
+    </div>
+
+    <div class="drawer-body">
+      <nav class="nav vstack md:my-4 gap-4">
+        {% if is_granted('ROLE_PROFESSOR') %}
+          <a href="{{ path('app_course_new') }}" class="btn-subtle theme-primary">
+            <i data-lucide="plus"></i>
+            Nouveau cours
+          </a>
+        {% endif %}
+
+        {% for course in this.courses %}
+          <div class="vstack row-gap-3">
+            <strong class="d-flex align-items-center gap-3 fw-semibold" style="color: {{ course.iconColor }};">
+              <i class="fa-brands fa-lg fa-{{ course.icon }}"></i>
+              {{ course.label }}
+            </strong>
+            <ul class="nav flex-column ps-4 chapter-list">
+              <li>
+                <a href="{{ path('app_course_overview', { slug: course.slug }) }}" class="nav-link">Aperçu</a>
+              </li>
+              {% for chapter in course.chapters %}
+                <li>
+                  <a href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}" class="nav-link">{{ chapter.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </nav>
+    </div>
+  </dialog>
+</aside>

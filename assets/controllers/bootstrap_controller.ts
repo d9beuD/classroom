@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { Drawer, Strength } from 'bootstrap';
-import { createIcons, ArrowRight, GraduationCap, Presentation } from 'lucide';
+import { createIcons, ArrowRight, GraduationCap, Presentation, Plus } from 'lucide';
 
 export default class extends Controller {
   connect() {
@@ -14,6 +14,7 @@ export default class extends Controller {
       icons: {
         ArrowRight,
         GraduationCap,
+        Plus,
         Presentation,
       }
     })

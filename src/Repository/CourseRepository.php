@@ -16,6 +16,19 @@ class CourseRepository extends ServiceEntityRepository
         parent::__construct($registry, Course::class);
     }
 
+    /**
+     * @return Course[] Returns an array of Course objects
+     */
+    public function findAllWithChapters(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.chapters', 'ch')
+            ->orderBy('c.label', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 //    /**
 //     * @return Course[] Returns an array of Course objects
 //     */
