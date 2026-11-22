@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\EntityEnum\ChapterSectionType;
+use App\EntityEnum\ChapterSectionVariant;
 use App\Repository\ChapterSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -31,6 +33,15 @@ class ChapterSection
     #[ORM\ManyToOne(inversedBy: 'sections')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Chapter $chapter = null;
+
+    #[ORM\Column(enumType: ChapterSectionType::class)]
+    private ?ChapterSectionType $type = null;
+
+    #[ORM\Column(enumType: ChapterSectionVariant::class, nullable: true)]
+    private ?ChapterSectionVariant $variant = null;
+
+    #[ORM\Column]
+    private ?int $position = null;
 
     public function __construct()
     {
@@ -104,6 +115,42 @@ class ChapterSection
     public function setChapter(?Chapter $chapter): static
     {
         $this->chapter = $chapter;
+
+        return $this;
+    }
+
+    public function getType(): ?ChapterSectionType
+    {
+        return $this->type;
+    }
+
+    public function setType(ChapterSectionType $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getVariant(): ?ChapterSectionVariant
+    {
+        return $this->variant;
+    }
+
+    public function setVariant(ChapterSectionVariant $variant): static
+    {
+        $this->variant = $variant;
+
+        return $this;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): static
+    {
+        $this->position = $position;
 
         return $this;
     }

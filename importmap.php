@@ -36,4 +36,5 @@ return [
     '@floating-ui/utils/dom' => ['version' => '0.2.12'],
     'vanilla-calendar-pro/styles/index.min.css' => ['version' => '3.4.0', 'type' => 'css'],
     'lucide' => ['version' => '1.77.0'],
+    '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
 ];

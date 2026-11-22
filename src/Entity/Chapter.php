@@ -34,7 +34,7 @@ class Chapter implements SluggableInterface
     /**
      * @var Collection<int, ChapterSection>
      */
-    #[ORM\OneToMany(targetEntity: ChapterSection::class, mappedBy: 'chapter', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: ChapterSection::class, mappedBy: 'chapter', cascade: ['persist'], orphanRemoval: true)]
     private Collection $sections;
 
     #[ORM\ManyToOne(inversedBy: 'chapters')]

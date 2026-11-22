@@ -3,12 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Chapter;
-use App\Entity\Course;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
 
 class ChapterType extends AbstractType
 {
@@ -33,9 +33,24 @@ class ChapterType extends AbstractType
                     'placeholder' => 'Position',
                 ],
             ])
-            ->add('course', EntityType::class, [
-                'class' => Course::class,
-                'choice_label' => 'id',
+            ->add('sections', LiveCollectionType::class, [
+                'entry_type' => ChapterSectionType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'label' => false,
+                'button_add_options' => [
+                    'label' => 'Ajouter',
+                    'attr' => [
+                        'class' => 'btn-subtle theme-primary',
+                    ],
+                ],
+                'button_delete_options' => [
+                    'label' => 'Supprimer',
+                    'attr' => [
+                        'class' => 'btn-subtle theme-danger',
+                    ],
+                ],
             ])
         ;
     }

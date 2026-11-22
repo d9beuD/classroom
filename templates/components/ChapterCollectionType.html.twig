@@ -1,0 +1,18 @@
+<div{{ attributes }}>
+  {{ form_start(form) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.excerpt) }}
+    {{ form_row(form.position) }}
+
+    <div class="card">
+      <div class="card-body">
+        {{ form_row(form.sections) }}
+      </div>
+    </div>
+
+    <div class="text-end">
+      <button class="btn-subtle theme-primary">{{ buttonLabel }}</button>
+      <a href="{{ cancelUrl }}" class="btn-subtle">Annuler</a>
+    </div>
+  {{ form_end(form) }}
+</div>
