@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\ChapterSection;
 use App\EntityEnum\ChapterSectionType as SectionType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -17,16 +16,22 @@ class ChapterSectionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('content')
+            ->add('content', null, [
+                'label' => false,
+                'row_attr' => [
+                    'class' => 'form-field',
+                ],
+                'attr' => [
+                    'class' => 'form-ghost p-5',
+                    'placeholder' => 'Contenu',
+                    'aria-label' => 'Contenu',
+                ],
+            ])
             // Set by the "Ajouter" menu of the ChapterCollectionType component.
             ->add('type', HiddenType::class)
             ->add('variant')
-            ->add('position')
-            ->add('parent', EntityType::class, [
-                'class' => ChapterSection::class,
-                'choice_label' => 'id',
-                'required' => false,
-            ])
+            // shortcut: set to the row index on add, until positions are managed automatically.
+            ->add('position', HiddenType::class)
         ;
 
         $builder->get('type')->addModelTransformer(new CallbackTransformer(
@@ -41,6 +46,10 @@ class ChapterSectionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => ChapterSection::class,
+            // Without a class, the form theme adds mb-3 to the section's fieldset.
+            'row_attr' => [
+                'class' => 'form-group',
+            ],
         ]);
     }
 }

@@ -1,11 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 import { Drawer, Strength } from 'bootstrap';
-import { createIcons, ArrowRight, GraduationCap, Presentation, Plus, Trash } from 'lucide';
+import { createIcons, ArrowRight, GraduationCap, GripVertical, Presentation, Plus, Trash } from 'lucide';
 
 const renderIcons = () => createIcons({
   icons: {
     ArrowRight,
     GraduationCap,
+    GripVertical,
     Plus,
     Presentation,
     Trash,

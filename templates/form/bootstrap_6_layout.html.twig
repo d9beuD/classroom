@@ -6,6 +6,7 @@
     radio_widget as base_radio_widget,
     choice_widget_collapsed as base_choice_widget_collapsed,
     button_widget as base_button_widget,
+    textarea_widget as base_textarea_widget,
     form_label as base_form_label
 %}
 {% use 'bootstrap_5_layout.html.twig' %}
@@ -42,6 +43,15 @@
     {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) -%}
     {{- block('base_choice_widget_collapsed') -}}
 {%- endblock choice_widget_collapsed %}
+
+{#- .form-ghost replaces .form-control (bootstrap_5 always adds it). -#}
+{%- block textarea_widget -%}
+    {%- if 'form-ghost' in attr.class|default('') -%}
+        {{- block('base_textarea_widget') -}}
+    {%- else -%}
+        {{- parent() -}}
+    {%- endif -%}
+{%- endblock textarea_widget %}
 
 {%- block checkbox_widget -%}
     {%- set parent_label_class = parent_label_class|default(label_attr.class|default('')) -%}

@@ -12,10 +12,15 @@
       {% endif %}
       <div class="card mb-3">
         <div class="card-header d-flex flex-row justify-content-between align-items-center">
-          {{ type ? type.label }}
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn-icon btn-text" aria-label="Déplacer" title="Déplacer">
+              <i data-lucide="grip-vertical" aria-hidden="true"></i>
+            </button>
+            {{ type ? type.label }}
+          </div>
           {{ form_widget(section.vars.button_delete) }}
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
           {{ form_row(section, { label: false }) }}
         </div>
       </div>

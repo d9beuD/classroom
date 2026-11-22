@@ -47,6 +47,7 @@ final class ChapterCollectionType extends AbstractController
         $this->addCollectionItem($propertyAccessor, $this->formName.'[sections]');
         $index = array_key_last($this->formValues['sections']);
         $this->formValues['sections'][$index]['type'] = $type->value;
+        $this->formValues['sections'][$index]['position'] = $index;
     }
 
     protected function instantiateForm(): FormInterface
