@@ -40,9 +40,13 @@ class ChapterType extends AbstractType
                 'by_reference' => false,
                 'label' => false,
                 'button_delete_options' => [
-                    'label' => 'Supprimer',
+                    'label' => '<i data-lucide="trash" aria-hidden="true"></i>',
+                    'label_html' => true,
+                    'translation_domain' => false,
                     'attr' => [
-                        'class' => 'btn-subtle theme-danger',
+                        'class' => 'btn-icon btn-subtle theme-danger',
+                        'aria-label' => 'Supprimer',
+                        'title' => 'Supprimer',
                     ],
                 ],
             ])

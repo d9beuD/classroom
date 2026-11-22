@@ -6,12 +6,19 @@
 
     {% for section in form.sections %}
       {% set type = enum('App\\EntityEnum\\ChapterSectionType').tryFrom(section.type.vars.value) %}
-      {% if type %}<span class="badge theme-primary">{{ type.label }}</span>{% endif %}
       {# Not rendered = not submitted, so the form clears variant for non-callout sections. #}
       {% if type != enum('App\\EntityEnum\\ChapterSectionType').Callout %}
         {% do section.variant.setRendered %}
       {% endif %}
-      {{ form_row(section) }}
+      <div class="card mb-3">
+        <div class="card-header d-flex flex-row justify-content-between align-items-center">
+          {{ type ? type.label }}
+          {{ form_widget(section.vars.button_delete) }}
+        </div>
+        <div class="card-body">
+          {{ form_row(section, { label: false }) }}
+        </div>
+      </div>
     {% endfor %}
     {% do form.sections.setRendered %}
 
