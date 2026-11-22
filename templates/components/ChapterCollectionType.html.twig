@@ -4,34 +4,34 @@
     {{ form_row(form.excerpt) }}
     {{ form_row(form.position) }}
 
-    <div class="card">
-      <div class="card-body">
-        {% for section in form.sections %}
-          {% set type = enum('App\\EntityEnum\\ChapterSectionType').tryFrom(section.type.vars.value) %}
-          {% if type %}<span class="badge theme-primary">{{ type.label }}</span>{% endif %}
-          {{ form_row(section) }}
-        {% endfor %}
-        {% do form.sections.setRendered %}
+    {% for section in form.sections %}
+      {% set type = enum('App\\EntityEnum\\ChapterSectionType').tryFrom(section.type.vars.value) %}
+      {% if type %}<span class="badge theme-primary">{{ type.label }}</span>{% endif %}
+      {# Not rendered = not submitted, so the form clears variant for non-callout sections. #}
+      {% if type != enum('App\\EntityEnum\\ChapterSectionType').Callout %}
+        {% do section.variant.setRendered %}
+      {% endif %}
+      {{ form_row(section) }}
+    {% endfor %}
+    {% do form.sections.setRendered %}
 
-        {# Ignored by live re-renders: Floating UI's inline styles on .menu would otherwise be carried onto whatever node the morph reuses it for. #}
-        <div id="chapter-section-add-menu" data-live-ignore>
-        <button class="btn-subtle theme-primary" type="button" data-bs-toggle="menu" aria-expanded="false">
-          Ajouter
-        </button>
-        <div class="menu">
-          {% for type in this.sectionTypes %}
-            <button
-              type="button"
-              class="menu-item"
-              data-action="live#action"
-              data-live-action-param="addSection"
-              data-live-type-param="{{ type.value }}"
-            >{{ type.label }}</button>
-          {% endfor %}
-        </div>
-        </div>
-      </div>
+    {# Ignored by live re-renders: Floating UI's inline styles on .menu would otherwise be carried onto whatever node the morph reuses it for. #}
+    <div id="chapter-section-add-menu" data-live-ignore>
+    <button class="btn-subtle theme-primary" type="button" data-bs-toggle="menu" aria-expanded="false">
+      Ajouter
+    </button>
+    <div class="menu">
+      {% for type in this.sectionTypes %}
+        <button
+          type="button"
+          class="menu-item"
+          data-action="live#action"
+          data-live-action-param="addSection"
+          data-live-type-param="{{ type.value }}"
+        >{{ type.label }}</button>
+      {% endfor %}
     </div>
+  </div>
 
     <div class="text-end">
       <button class="btn-subtle theme-primary">{{ buttonLabel }}</button>
