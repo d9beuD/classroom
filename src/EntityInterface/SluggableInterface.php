@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\EntityInterface;
+namespace App\EntityInterface;
 
 interface SluggableInterface
 {

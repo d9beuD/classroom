@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Entity\EntityInterface\SluggableInterface;
+use App\EntityInterface\SluggableInterface;
 use App\EntityTrait\SluggableTrait;
 use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
