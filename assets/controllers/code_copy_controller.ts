@@ -39,7 +39,7 @@ export default class extends Controller<HTMLElement> {
   private button(pre: HTMLPreElement): HTMLButtonElement {
     const button = document.createElement('button')
     button.type = 'button'
-    button.className = 'btn-icon code-copy'
+    button.className = 'btn-icon code-copy d-print-none'
     button.dataset.bsTheme = 'dark'
     button.ariaLabel = LABEL
     button.title = LABEL

@@ -3,7 +3,7 @@
 {% block title %}Chapter{% endblock %}
 
 {% block breadcrumb %}
-  <nav aria-label="breadcrumb">
+  <nav aria-label="breadcrumb" class="d-print-none">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a href="{{ path('app_course_index') }}" class="breadcrumb-link">Cours</a>
@@ -28,7 +28,7 @@
     </p>
 
     {% if is_granted('ROLE_PROFESSOR') %}
-      <div class="d-flex gap-3 bg-1 p-3 rounded">
+      <div class="d-flex gap-3 bg-1 p-3 rounded d-print-none">
         <a href="{{ path('app_chapter_edit', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}">Modifier</a>
         {{ include('chapter/_delete_form.html.twig') }}
       </div>

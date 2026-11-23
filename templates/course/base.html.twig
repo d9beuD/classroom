@@ -5,7 +5,7 @@
 {% block body %}
   <div class="container">
     <div class="row">
-      <div class="md:col-auto">
+      <div class="md:col-auto d-print-none">
         {{ component('CoursesMenu') }}
       </div>
 
@@ -14,7 +14,7 @@
         {% block main %}{% endblock %}
       </div>
 
-      <div class="col-12 xl:col-auto course-aside">
+      <div class="col-12 xl:col-auto course-aside d-print-none">
         {% block toc %}{% endblock %}
       </div>
     </div>

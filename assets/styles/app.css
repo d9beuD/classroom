@@ -157,6 +157,10 @@ button[data-sortable-handle]:active {
 }
 
 /* Rendered chapter (ChapterRenderer): Shiki code blocks and Mermaid diagrams. */
+.chapter-content pre {
+  font-size: .875em;
+}
+
 .chapter-content pre.shiki {
   padding-block: 1rem;
   border-radius: var(--bs-radius-5);
@@ -268,4 +272,55 @@ button[data-sortable-handle]:active {
   margin-block: 1rem;
   overflow-x: auto;
   text-align: center;
+}
+
+/* Printing (and PDF export) of a page: only its content. Bootstrap 6 has no d-print-* utilities yet. */
+/* 1.5cm in all: .75cm here, .75cm of container padding (print), which code blocks reach into. */
+@page {
+  size: A4;
+  margin: 1.5cm .75cm;
+}
+
+@media print {
+  .d-print-none {
+    display: none !important;
+  }
+
+  /* The content column spans the whole page, inside the @page margins. */
+  main {
+    margin-block: 0 !important;
+  }
+
+  .container {
+    max-width: none;
+    padding-inline: .75cm;
+  }
+
+  .row {
+    margin-inline: 0;
+  }
+
+  .row > * {
+    padding-inline: 0;
+  }
+
+  /* Keep the dark code blocks, annotated lines and diagram colours: browsers drop backgrounds by default. */
+  .chapter-content pre.shiki,
+  .chapter-content .mermaid-diagram {
+    -webkit-print-color-adjust: exact; /* Safari */
+    print-color-adjust: exact;
+    break-inside: avoid;
+  }
+
+  /* No horizontal scroll on paper: long lines wrap. The block reaches a little into the page margins. */
+  .chapter-content pre.shiki {
+    margin-inline: -.75cm;
+    overflow: visible;
+    white-space: pre-wrap;
+  }
+
+  .chapter-content pre.shiki.has-focused .line:not(.focused) {
+    opacity: 1;
+    filter: none;
+  }
 }
