@@ -50,13 +50,23 @@ button[data-sortable-handle]:active {
   transition: opacity .15s ease-in-out;
 }
 
+/* Vertically centred on the block; the add menu's wrapper is a flex box so both buttons line up. */
 .section-gutter {
+  top: 50%;
   right: 100%;
   padding-right: .25rem;
+  transform: translateY(-50%);
 }
 
+.section-gutter > [id$="-add-after"] {
+  display: flex;
+}
+
+/* Straddles the block's top-right corner, so it doesn't cover the content. */
 .section-tools {
-  right: .25rem;
+  top: 0;
+  right: -1rem;
+  transform: translateY(-50%);
   gap: .25rem;
   padding: .125rem .25rem;
   border-radius: var(--bs-radius-5);
@@ -113,7 +123,6 @@ button[data-sortable-handle]:active {
 .section-mermaid .section-body {
   padding-block: .5rem;
   border-radius: var(--bs-radius-5);
-  background-color: var(--bs-bg-2);
 }
 
 /* Colour sample in a themed combobox item (the item carries the .theme-* class). */

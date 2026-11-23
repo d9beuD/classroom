@@ -145,7 +145,7 @@
           {{ form_widget(section.vars.button_delete) }}
         </div>
 
-        <div class="section-body">
+        <div class="section-body{{ editor_language ? ' bg-1' }}">
           {% if editor_language %}
             <div data-controller="monaco" data-monaco-language-value="{{ editor_language }}">
               {{ form_row(section.content, { attr: section.content.vars.attr|merge({ 'data-monaco-target': 'input' }) }) }}
