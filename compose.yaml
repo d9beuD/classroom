@@ -39,6 +39,13 @@ services:
       - caddy_config:/config
     depends_on:
       - database
+      - renderer
+    restart: unless-stopped
+
+  # Shiki and Mermaid rendering for chapters (Node + Chromium); only reachable from the app.
+  renderer:
+    build:
+      context: ./docker/renderer
     restart: unless-stopped
 
 volumes:

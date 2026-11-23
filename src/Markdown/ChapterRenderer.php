@@ -13,16 +13,23 @@ use League\CommonMark\MarkdownConverter;
 /**
  * Renders a chapter's sections, in position order, to the HTML stored on the chapter.
  *
- * Each section is one Markdown block. Code and Mermaid sections hold raw code (no ``` fence),
- * so they get one here; headings get their # prefix from the section level, quotes their > prefix,
- * and callouts a wrapper div coloured by their variant. Raw HTML written in a section is escaped.
+ * Each section is one Markdown block; headings get their # prefix from the section level, quotes
+ * their > prefix, and callouts a wrapper div coloured by their variant. Raw HTML written in a
+ * section is escaped.
+ *
+ * Code and Mermaid sections hold raw code (no ``` fence). They are rendered by the renderer
+ * service (Shiki highlighting, Mermaid SVG); if it fails, they fall back to a fenced code block.
  */
 final class ChapterRenderer
 {
     private readonly MarkdownConverter $converter;
 
-    public function __construct()
-    {
+    /** Mermaid diagrams rendered so far in the current chapter, for unique SVG ids. */
+    private int $diagramCount = 0;
+
+    public function __construct(
+        private readonly RendererClient $renderer,
+    ) {
         $environment = new Environment([
             'html_input' => 'escape',
             'allow_unsafe_links' => false,
@@ -37,6 +44,7 @@ final class ChapterRenderer
     {
         $sections = $chapter->getSections()->toArray();
         usort($sections, fn (ChapterSection $a, ChapterSection $b): int => $a->getPosition() <=> $b->getPosition());
+        $this->diagramCount = 0;
 
         return implode('', array_map($this->renderSection(...), $sections));
     }
@@ -52,8 +60,8 @@ final class ChapterRenderer
             // One line: a heading can't span several.
             ChapterSectionType::Heading => $this->markdown(str_repeat('#', $section->getLevel() ?? 2).' '.preg_replace('/\s+/', ' ', trim($content))),
             ChapterSectionType::Quote => $this->markdown('> '.str_replace("\n", "\n> ", $content)),
-            ChapterSectionType::Code => $this->markdown($this->fence($content, $section->getLanguage()?->value ?? '')),
-            ChapterSectionType::Mermaid => $this->markdown($this->fence($content, 'mermaid')),
+            ChapterSectionType::Code => $this->code($content, $section->getLanguage()?->value ?? ''),
+            ChapterSectionType::Mermaid => $this->diagram($content),
             ChapterSectionType::Callout => \sprintf(
                 "<div class=\"alert%s\">\n%s</div>\n",
                 $section->getVariant() ? ' theme-'.$section->getVariant()->value : '',
@@ -61,6 +69,21 @@ final class ChapterRenderer
             ),
             default => $this->markdown($content),
         };
+    }
+
+    private function code(string $code, string $language): string
+    {
+        return $this->renderer->highlight(rtrim($code, "\n"), $language)
+            ?? $this->markdown($this->fence($code, $language));
+    }
+
+    private function diagram(string $code): string
+    {
+        $svg = $this->renderer->mermaid($code, 'mermaid-'.++$this->diagramCount);
+
+        return null !== $svg
+            ? "<figure class=\"mermaid-diagram\">\n".$svg."\n</figure>\n"
+            : $this->markdown($this->fence($code, 'mermaid'));
     }
 
     /**

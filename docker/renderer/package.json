@@ -1,0 +1,14 @@
+{
+  "name": "classroom-renderer",
+  "private": true,
+  "type": "module",
+  "description": "Renders code (Shiki) and Mermaid diagrams to HTML/SVG for the Symfony app, over HTTP.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@mermaid-js/mermaid-cli": "12.2.0",
+    "puppeteer": "25.16.0",
+    "shiki": "4.6.0"
+  }
+}
