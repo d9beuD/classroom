@@ -89,7 +89,6 @@
   {{ form_start(form) }}
     {{ form_row(form.title) }}
     {{ form_row(form.excerpt) }}
-    {{ form_row(form.position) }}
 
     {# Sorted by position so a re-render after a drag-and-drop keeps the new order. #}
     <div class="section-list" data-controller="sortable">

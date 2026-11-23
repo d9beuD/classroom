@@ -27,12 +27,6 @@ class ChapterType extends AbstractType
                     'placeholder' => 'Résumé',
                 ],
             ])
-            ->add('position', null, [
-                'label' => 'Position',
-                'attr' => [
-                    'placeholder' => 'Position',
-                ],
-            ])
             ->add('sections', LiveCollectionType::class, [
                 'entry_type' => ChapterSectionType::class,
                 'allow_add' => true,

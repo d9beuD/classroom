@@ -48,7 +48,7 @@ final class CourseController extends AbstractController
     {
         return $this->render('course/overview.html.twig', [
             'course' => $course,
-            'chapters' => $chapterRepository->findBy(['course' => $course]),
+            'chapters' => $chapterRepository->findBy(['course' => $course], ['position' => 'ASC']),
         ]);
     }
 

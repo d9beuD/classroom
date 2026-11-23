@@ -35,6 +35,7 @@ class Course implements SluggableInterface
      * @var Collection<int, Chapter>
      */
     #[ORM\OneToMany(targetEntity: Chapter::class, mappedBy: 'course', orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $chapters;
 
     public function __construct()

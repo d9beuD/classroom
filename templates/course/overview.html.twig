@@ -5,7 +5,15 @@
 {% block main %}
     <h1>{{ course.label }}</h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 my-5">
+    {# Professors reorder chapters by drag and drop; the order is saved right away. #}
+    <div
+      class="grid grid-cols-1 lg:grid-cols-3 my-5"
+      {% if is_granted('ROLE_PROFESSOR') %}
+        data-controller="sortable"
+        data-sortable-url-value="{{ path('app_chapter_reorder', { courseSlug: course.slug }) }}"
+        data-sortable-token-value="{{ csrf_token('reorder-chapters-' ~ course.id) }}"
+      {% endif %}
+    >
       {% if is_granted('ROLE_PROFESSOR') %}
         <a href="{{ path('app_chapter_new', { courseSlug: course.slug }) }}" class="d-block text-decoration-none bg-1 hover-bg-2 rounded-3 p-3">
           <strong class="d-block mb-0">
@@ -17,17 +25,20 @@
         {% endif %}
 
         {% for chapter in chapters %}
-          <a
-            href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}"
-            class="d-block text-decoration-none bg-1 hover-bg-2 rounded-3 p-3"
-          >
-            <strong class="d-block mb-0">
+          {# The title link covers the card (stretched-link); the handle sits above it. #}
+          <div class="position-relative bg-1 hover-bg-2 rounded-3 p-3" data-sortable-item data-sortable-id="{{ chapter.id }}">
+            {% if is_granted('ROLE_PROFESSOR') %}
+              <button type="button" class="btn-icon btn-text btn-xs position-absolute top-0 end-0 m-2 z-2" aria-label="Déplacer le chapitre {{ chapter.title }}" title="Déplacer" data-sortable-handle>
+                <i data-lucide="grip-vertical" aria-hidden="true"></i>
+              </button>
+            {% endif %}
+            <a href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}" class="stretched-link d-block text-decoration-none fw-bold">
               {{ chapter.title }}
-            </strong>
+            </a>
             <span class="fg-3">
               {{ chapter.excerpt }}
             </span>
-          </a>
+          </div>
       {% endfor %}
     </div>
 
