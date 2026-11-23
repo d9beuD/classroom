@@ -158,17 +158,74 @@ button[data-sortable-handle]:active {
 
 /* Rendered chapter (ChapterRenderer): Shiki code blocks and Mermaid diagrams. */
 .chapter-content pre.shiki {
-  padding: 1rem;
+  padding-block: 1rem;
   border-radius: var(--bs-radius-5);
   overflow-x: auto;
 }
 
+/* Full-width lines, padded themselves, so that their background reaches the edges. */
+.chapter-content pre.shiki code {
+  display: block;
+  width: fit-content;
+  min-width: 100%;
+}
+
+.chapter-content pre.shiki .line {
+  display: inline-block;
+  width: 100%;
+  padding-inline: 1.5rem 1rem;
+}
+
+/* Shiki transformers: // [!code ++|--|highlight|error|warning|focus|word:xxx] */
+.chapter-content pre.shiki .line.diff,
+.chapter-content pre.shiki .line.highlighted {
+  position: relative;
+}
+
+.chapter-content pre.shiki .line.diff.add { background-color: var(--bs-success-bg-subtle); }
+.chapter-content pre.shiki .line.diff.remove { background-color: var(--bs-danger-bg-subtle); opacity: .7; }
+.chapter-content pre.shiki .line.highlighted { background-color: var(--bs-primary-bg-subtle); }
+.chapter-content pre.shiki .line.highlighted.error { background-color: var(--bs-danger-bg-subtle); }
+.chapter-content pre.shiki .line.highlighted.warning { background-color: var(--bs-warning-bg-subtle); }
+
+.chapter-content pre.shiki .line.diff::before {
+  position: absolute;
+  left: .5rem;
+  user-select: none;
+}
+
+.chapter-content pre.shiki .line.diff.add::before { content: "+"; color: var(--bs-success-fg); }
+.chapter-content pre.shiki .line.diff.remove::before { content: "-"; color: var(--bs-danger-fg); }
+
+.chapter-content pre.shiki .highlighted-word {
+  padding: 0 .125rem;
+  border: 1px solid var(--bs-primary-border);
+  border-radius: var(--bs-radius-2);
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+/* Lines out of focus fade, until the block is hovered. */
+.chapter-content pre.shiki.has-focused .line:not(.focused) {
+  opacity: .5;
+  filter: blur(1px);
+  transition: opacity .2s, filter .2s;
+}
+
+.chapter-content pre.shiki.has-focused:hover .line:not(.focused) {
+  opacity: 1;
+  filter: none;
+}
+
 /* Shiki writes light colours inline and dark ones in --shiki-dark variables. */
 @media (prefers-color-scheme: dark) {
+  .chapter-content .shiki {
+    background-color: var(--shiki-dark-bg) !important;
+  }
+
+  /* Colours only: the line backgrounds of the transformers stay. */
   .chapter-content .shiki,
   .chapter-content .shiki span {
     color: var(--shiki-dark) !important;
-    background-color: var(--shiki-dark-bg) !important;
     font-style: var(--shiki-dark-font-style) !important;
     font-weight: var(--shiki-dark-font-weight) !important;
     text-decoration: var(--shiki-dark-text-decoration) !important;

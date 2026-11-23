@@ -5,6 +5,13 @@
 // Errors answer 4xx/5xx with { error }.
 import { createServer } from 'node:http'
 import { codeToHtml } from 'shiki'
+import {
+  transformerNotationDiff,
+  transformerNotationErrorLevel,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+  transformerNotationWordHighlight,
+} from '@shikijs/transformers'
 import { renderMermaid } from '@mermaid-js/mermaid-cli'
 import puppeteer from 'puppeteer'
 
@@ -25,14 +32,24 @@ const browser = () => browserPromise ??= puppeteer.launch({
   throw error
 })
 
-const SHIKI_THEMES = { themes: { light: 'github-light', dark: 'github-dark' } }
+// [!code ++|--|highlight|focus|error|warning|word:xxx] comments: removed, their line gets classes (app.css).
+const SHIKI_OPTIONS = {
+  themes: { light: 'github-light', dark: 'github-dark' },
+  transformers: [
+    transformerNotationDiff(),
+    transformerNotationHighlight(),
+    transformerNotationFocus(),
+    transformerNotationErrorLevel(),
+    transformerNotationWordHighlight(),
+  ],
+}
 
 async function highlight({ code, lang }) {
   try {
-    return { html: await codeToHtml(code, { ...SHIKI_THEMES, lang: lang || 'text' }) }
+    return { html: await codeToHtml(code, { ...SHIKI_OPTIONS, lang: lang || 'text' }) }
   } catch {
     // A language Shiki doesn't know (Monaco knows a few more): plain text rather than an error.
-    return { html: await codeToHtml(code, { ...SHIKI_THEMES, lang: 'text' }) }
+    return { html: await codeToHtml(code, { ...SHIKI_OPTIONS, lang: 'text' }) }
   }
 }
 

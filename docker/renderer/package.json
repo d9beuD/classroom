@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@mermaid-js/mermaid-cli": "12.2.0",
+    "@shikijs/transformers": "4.6.0",
     "puppeteer": "25.16.0",
     "shiki": "4.6.0"
   }
