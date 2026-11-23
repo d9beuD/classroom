@@ -36,6 +36,8 @@ const browser = () => browserPromise ??= puppeteer.launch({
 const SHIKI_OPTIONS = {
   themes: { light: 'github-light', dark: 'github-dark' },
   transformers: [
+    // Always a dark block (app.css), on the Shiki theme's background.
+    { pre(node) { node.properties['data-bs-theme'] = 'dark' } },
     transformerNotationDiff(),
     transformerNotationHighlight(),
     transformerNotationFocus(),
