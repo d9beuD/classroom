@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\EntityEnum\ChapterSectionLanguage;
 use App\EntityEnum\ChapterSectionType;
 use App\EntityEnum\ChapterSectionVariant;
 use App\Repository\ChapterSectionRepository;
@@ -39,6 +40,9 @@ class ChapterSection
 
     #[ORM\Column(enumType: ChapterSectionVariant::class, nullable: true)]
     private ?ChapterSectionVariant $variant = null;
+
+    #[ORM\Column(enumType: ChapterSectionLanguage::class, nullable: true)]
+    private ?ChapterSectionLanguage $language = null;
 
     #[ORM\Column]
     private ?int $position = null;
@@ -136,9 +140,21 @@ class ChapterSection
         return $this->variant;
     }
 
-    public function setVariant(ChapterSectionVariant $variant): static
+    public function setVariant(?ChapterSectionVariant $variant): static
     {
         $this->variant = $variant;
+
+        return $this;
+    }
+
+    public function getLanguage(): ?ChapterSectionLanguage
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?ChapterSectionLanguage $language): static
+    {
+        $this->language = $language;
 
         return $this;
     }

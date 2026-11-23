@@ -3,10 +3,12 @@
 namespace App\Form;
 
 use App\Entity\ChapterSection;
+use App\EntityEnum\ChapterSectionLanguage;
 use App\EntityEnum\ChapterSectionType as SectionType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,6 +32,14 @@ class ChapterSectionType extends AbstractType
             // Set by the "Ajouter" menu of the ChapterCollectionType component.
             ->add('type', HiddenType::class)
             ->add('variant')
+            // Only rendered for code sections; null means plain text.
+            ->add('language', EnumType::class, [
+                'class' => ChapterSectionLanguage::class,
+                'choice_label' => fn (ChapterSectionLanguage $language): string => $language->label(),
+                'label' => 'Langage',
+                'required' => false,
+                'placeholder' => 'Texte brut',
+            ])
             // shortcut: set to the row index on add, until positions are managed automatically.
             ->add('position', HiddenType::class)
         ;

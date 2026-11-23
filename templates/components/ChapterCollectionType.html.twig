@@ -7,11 +7,17 @@
     {# Sorted by position so a re-render after a drag-and-drop keeps the new order. #}
     <div data-controller="sortable">
     {% for section in form.sections.children|sort((a, b) => a.position.vars.value <=> b.position.vars.value) %}
-      {% set type = enum('App\\EntityEnum\\ChapterSectionType').tryFrom(section.type.vars.value) %}
-      {# Not rendered = not submitted, so the form clears variant for non-callout sections. #}
-      {% if type != enum('App\\EntityEnum\\ChapterSectionType').Callout %}
+      {% set types = enum('App\\EntityEnum\\ChapterSectionType') %}
+      {% set type = types.tryFrom(section.type.vars.value) %}
+      {# Not rendered = not submitted, so the form clears variant/language for other section types. #}
+      {% if type != types.Callout %}
         {% do section.variant.setRendered %}
       {% endif %}
+      {% if type != types.Code %}
+        {% do section.language.setRendered %}
+      {% endif %}
+      {# Monaco language id, for sections edited in Monaco instead of the textarea. #}
+      {% set editor_language = type == types.Code ? (section.language.vars.value ?: 'plaintext') : (type == types.Mermaid ? 'mermaid' : null) %}
       <div class="card mb-3">
         <div class="card-header d-flex flex-row justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
@@ -19,10 +25,42 @@
               <i data-lucide="grip-vertical" aria-hidden="true"></i>
             </button>
             {{ type ? type.label }}
+            {% if type == types.Code %}
+              {% set language = enum('App\\EntityEnum\\ChapterSectionLanguage').tryFrom(section.language.vars.value) %}
+              {# The real form field; the combobox below writes to it (see bootstrap_controller.ts). #}
+              <input type="hidden" id="{{ section.language.vars.id }}" name="{{ section.language.vars.full_name }}" value="{{ section.language.vars.value }}">
+              {% do section.language.setRendered %}
+              {# Ignored by live re-renders: the combobox owns its toggle text and menu position. #}
+              <div id="{{ section.language.vars.id }}_combobox" data-live-ignore>
+                <button
+                  class="btn-text btn-sm combobox-toggle w-auto"
+                  type="button"
+                  data-bs-toggle="combobox"
+                  data-combobox-input="{{ section.language.vars.id }}"
+                  aria-label="Langage"
+                >
+                  <span class="combobox-value">{{ language ? language.label : 'Texte brut' }}</span>
+                  <i data-lucide="chevron-down" class="combobox-caret" aria-hidden="true"></i>
+                </button>
+                <div class="menu">
+                  <button class="menu-item{{ language ? '' : ' selected' }}" type="button" data-bs-value="" aria-selected="{{ language ? 'false' : 'true' }}">Texte brut</button>
+                  {% for case in enum_cases('App\\EntityEnum\\ChapterSectionLanguage') %}
+                    <button class="menu-item{{ case == language ? ' selected' }}" type="button" data-bs-value="{{ case.value }}" aria-selected="{{ case == language ? 'true' : 'false' }}">{{ case.label }}</button>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
           </div>
           {{ form_widget(section.vars.button_delete) }}
         </div>
         <div class="card-body p-0">
+          {% if editor_language %}
+            <div data-controller="monaco" data-monaco-language-value="{{ editor_language }}">
+              {{ form_row(section.content, { attr: section.content.vars.attr|merge({ 'data-monaco-target': 'input' }) }) }}
+              {# Monaco owns this node: live re-renders must not touch it. #}
+              <div id="{{ section.content.vars.id }}_editor" data-monaco-target="editor" data-live-ignore></div>
+            </div>
+          {% endif %}
           {{ form_row(section, { label: false }) }}
         </div>
       </div>

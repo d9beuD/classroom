@@ -13,6 +13,9 @@ export default class extends Controller<HTMLElement> {
     this.sortable = Sortable.create(this.element, {
       handle: '[data-sortable-handle]',
       animation: 150,
+      // By default the dragged element's text is put in the drag data, and editors under the
+      // drop point (Monaco, inputs) paste it. Empty data still starts the drag in Firefox.
+      setData: (dataTransfer) => dataTransfer.setData('text', ''),
       onEnd: () => this.updatePositions(),
     })
   }

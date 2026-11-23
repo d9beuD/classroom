@@ -38,4 +38,6 @@ return [
     'lucide' => ['version' => '1.77.0'],
     '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
     'sortablejs' => ['version' => '1.15.7'],
+    '@monaco-editor/loader' => ['version' => '1.7.0'],
+    'state-local' => ['version' => '1.0.7'],
 ];
