@@ -236,6 +236,34 @@ button[data-sortable-handle]:active {
   text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 
+/* Copy button of code blocks (code_copy_controller): on hover and keyboard focus, always on touch screens. */
+.chapter-content .code-block {
+  position: relative;
+}
+
+.chapter-content .code-copy {
+  /* .btn-icon has no hover colour: without it, the dark page text colour is inherited on hover. */
+  --bs-btn-hover-color: var(--bs-btn-color);
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  opacity: 0;
+  transition: opacity .15s;
+}
+
+.chapter-content .code-block:hover .code-copy,
+.chapter-content .code-block:focus-within .code-copy {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .chapter-content .code-copy { opacity: 1; }
+}
+
+.chapter-content .code-copy.copied {
+  color: var(--bs-success-fg);
+}
+
 .chapter-content .mermaid-diagram {
   margin-block: 1rem;
   overflow-x: auto;
