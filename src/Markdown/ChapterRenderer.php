@@ -18,7 +18,7 @@ use League\CommonMark\MarkdownConverter;
  * section is escaped.
  *
  * Code and Mermaid sections hold raw code (no ``` fence). They are rendered by the renderer
- * service (Shiki highlighting, Mermaid SVG); if it fails, they fall back to a fenced code block.
+ * service (Shiki highlighting, Mermaid SVG in a light and a dark theme); if it fails, they fall back to a fenced code block.
  */
 final class ChapterRenderer
 {
@@ -77,12 +77,17 @@ final class ChapterRenderer
             ?? $this->markdown($this->fence($code, $language));
     }
 
+    /**
+     * A light and a dark rendering, one of which app.css hides, as Mermaid writes its colours in the SVG.
+     */
     private function diagram(string $code): string
     {
-        $svg = $this->renderer->mermaid($code, 'mermaid-'.++$this->diagramCount);
+        $id = 'mermaid-'.++$this->diagramCount;
+        $light = $this->renderer->mermaid($code, $id.'-light');
+        $dark = null !== $light ? $this->renderer->mermaid($code, $id.'-dark', 'dark') : null;
 
-        return null !== $svg
-            ? "<figure class=\"mermaid-diagram\">\n".$svg."\n</figure>\n"
+        return null !== $dark
+            ? "<figure class=\"mermaid-diagram\">\n<div class=\"mermaid-light\">".$light."</div>\n<div class=\"mermaid-dark\">".$dark."</div>\n</figure>\n"
             : $this->markdown($this->fence($code, 'mermaid'));
     }
 

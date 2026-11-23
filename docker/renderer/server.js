@@ -1,6 +1,6 @@
 // Rendering service for the Symfony app (not exposed outside Docker Compose).
 //   POST /highlight { code, lang }  -> { html }  Shiki, light + dark themes; unknown languages as plain text
-//   POST /mermaid   { code, svgId } -> { svg }   Mermaid through headless Chromium
+//   POST /mermaid   { code, svgId, theme? } -> { svg }   Mermaid through headless Chromium; theme: light | dark
 //   GET  /health                    -> 204
 // Errors answer 4xx/5xx with { error }.
 import { createServer } from 'node:http'
@@ -55,10 +55,11 @@ async function highlight({ code, lang }) {
   }
 }
 
-async function mermaid({ code, svgId }) {
+async function mermaid({ code, svgId, theme }) {
   const { data } = await renderMermaid(await browser(), code, 'svg', {
     backgroundColor: 'transparent',
-    mermaidConfig: { securityLevel: 'strict' },
+    // Mermaid 12's own default look (redux-color) and its dark counterpart.
+    mermaidConfig: { securityLevel: 'strict', theme: theme === 'dark' ? 'redux-dark-color' : 'redux-color' },
     // No embedded fonts (~190 KB of base64 + licences per diagram): the page's own fonts are used.
     fontEmbed: false,
     svgId,

@@ -144,20 +144,33 @@ final class ChapterRendererTest extends TestCase
         $this->assertSame([['/highlight', ['code' => 'x', 'lang' => '']]], $this->requests);
     }
 
-    public function testDiagramsAreRenderedWithUniqueSvgIds(): void
+    public function testDiagramsAreRenderedInBothThemesWithUniqueSvgIds(): void
     {
         $html = $this->render(
             [
                 self::section(ChapterSectionType::Mermaid, 'flowchart LR', 0),
                 self::section(ChapterSectionType::Mermaid, 'pie', 1),
             ],
-            fn (string $path, array $payload): MockResponse => new JsonMockResponse(['svg' => '<svg id="'.$payload['svgId'].'"/>']),
+            fn (string $path, array $payload): MockResponse => new JsonMockResponse(['svg' => '<svg id="'.$payload['svgId'].'" theme="'.$payload['theme'].'"/>']),
         );
 
-        $this->assertSame(
-            "<figure class=\"mermaid-diagram\">\n<svg id=\"mermaid-1\"/>\n</figure>\n<figure class=\"mermaid-diagram\">\n<svg id=\"mermaid-2\"/>\n</figure>\n",
-            $html,
+        $figure = fn (int $n): string => "<figure class=\"mermaid-diagram\">\n"
+            ."<div class=\"mermaid-light\"><svg id=\"mermaid-$n-light\" theme=\"light\"/></div>\n"
+            ."<div class=\"mermaid-dark\"><svg id=\"mermaid-$n-dark\" theme=\"dark\"/></div>\n"
+            ."</figure>\n";
+        $this->assertSame($figure(1).$figure(2), $html);
+    }
+
+    public function testDiagramFallsBackToItsCodeWhenTheDarkRenderingFails(): void
+    {
+        $html = $this->render(
+            [self::section(ChapterSectionType::Mermaid, 'pie')],
+            fn (string $path, array $payload): MockResponse => 'dark' === $payload['theme']
+                ? new MockResponse('', ['http_code' => 503])
+                : new JsonMockResponse(['svg' => '<svg/>']),
         );
+
+        $this->assertSame("<pre><code class=\"language-mermaid\">pie\n</code></pre>\n", $html);
     }
 
     public function testInvalidDiagramFallsBackToItsCode(): void

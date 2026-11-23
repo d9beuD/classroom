@@ -274,6 +274,20 @@ button[data-sortable-handle]:active {
   text-align: center;
 }
 
+/* Diagrams come in a light and a dark rendering (ChapterRenderer). The dark one shows with
+   data-bs-theme="dark", or with a dark system preference unless the page is data-bs-theme="light". */
+.chapter-content .mermaid-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-bs-theme="light"]) .chapter-content .mermaid-light { display: none; }
+  :root:not([data-bs-theme="light"]) .chapter-content .mermaid-dark { display: block; }
+}
+
+[data-bs-theme="dark"] .chapter-content .mermaid-light { display: none; }
+[data-bs-theme="dark"] .chapter-content .mermaid-dark { display: block; }
+
 /* Printing (and PDF export) of a page: only its content. Bootstrap 6 has no d-print-* utilities yet. */
 /* 1.5cm in all: .75cm here, .75cm of container padding (print), which code blocks reach into. */
 @page {
@@ -325,6 +339,10 @@ button[data-sortable-handle]:active {
     overflow: visible;
     white-space: pre-wrap;
   }
+
+  /* Light diagrams on paper, whatever the screen theme. */
+  .chapter-content .mermaid-light { display: block !important; }
+  .chapter-content .mermaid-dark { display: none !important; }
 
   .chapter-content pre.shiki.has-focused .line:not(.focused) {
     opacity: 1;

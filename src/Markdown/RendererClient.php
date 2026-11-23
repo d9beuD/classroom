@@ -32,10 +32,11 @@ final readonly class RendererClient
 
     /**
      * @param string $svgId id of the `<svg>`, which Mermaid also uses to scope its styles: unique per page
+     * @param string $theme `light` or `dark`
      */
-    public function mermaid(string $code, string $svgId): ?string
+    public function mermaid(string $code, string $svgId, string $theme = 'light'): ?string
     {
-        return $this->post('/mermaid', ['code' => $code, 'svgId' => $svgId])['svg'] ?? null;
+        return $this->post('/mermaid', ['code' => $code, 'svgId' => $svgId, 'theme' => $theme])['svg'] ?? null;
     }
 
     /**

@@ -10,7 +10,8 @@ const loadMermaid = () => mermaidPromise ??= import(MERMAID_URL).then(({ default
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
-    theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+    // Same themes as the server rendering (docker/renderer).
+    theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'redux-dark-color' : 'redux-color',
   })
   return mermaid
 })
