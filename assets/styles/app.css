@@ -134,3 +134,24 @@ button[data-sortable-handle]:active {
   border-radius: 50%;
   background-color: var(--bs-theme-bg-subtle, var(--bs-bg-2));
 }
+
+/* Mermaid code / preview toggle: one icon per state. */
+.mermaid-preview-toggle[aria-pressed="true"] .icon-when-code,
+.mermaid-preview-toggle:not([aria-pressed="true"]) .icon-when-preview {
+  display: none;
+}
+
+.mermaid-preview {
+  padding: .5rem 1rem;
+  overflow-x: auto;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mermaid-preview-error {
+  margin: 0;
+  font-size: var(--bs-font-size-sm);
+  color: var(--bs-danger-fg);
+  text-align: start;
+  white-space: pre-wrap;
+}

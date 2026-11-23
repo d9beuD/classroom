@@ -117,7 +117,7 @@
         match each block to itself: otherwise, after a delete, a block's DOM is reused for the next
         one, and its data-live-ignore children (never removed by Live Components) pile up.
       #}
-      <div id="chapter-section-{{ section.vars.name }}" class="section-block section-{{ type ? type.value : 'unknown' }}{{ variant ? ' theme-' ~ variant }}{{ level ? ' section-heading-' ~ level }}" data-sortable-item>
+      <div id="chapter-section-{{ section.vars.name }}" class="section-block section-{{ type ? type.value : 'unknown' }}{{ variant ? ' theme-' ~ variant }}{{ level ? ' section-heading-' ~ level }}" data-sortable-item{% if type == types.Mermaid %} data-controller="mermaid-preview"{% endif %}>
         {# Left margin, shown on hover/focus: add a section below, drag handle. #}
         <div class="section-gutter">
           {# Keyed by collection key, not position, so this ignored menu never goes stale. #}
@@ -142,16 +142,43 @@
           {% elseif type == types.Callout %}
             {{ _self.combobox(section.variant, variant_options, 'Couleur', 'Neutre', false, null, true) }}
           {% endif %}
+          {% if type == types.Mermaid %}
+            <button
+              type="button"
+              class="btn-icon btn-text btn-xs mermaid-preview-toggle"
+              aria-pressed="false"
+              aria-label="Aperçu du diagramme"
+              title="Aperçu / code"
+              data-mermaid-preview-target="toggle"
+              data-action="mermaid-preview#toggle"
+            >
+              <i data-lucide="eye" class="icon-when-code" aria-hidden="true"></i>
+              <i data-lucide="code" class="icon-when-preview" aria-hidden="true"></i>
+            </button>
+          {% endif %}
           {{ form_widget(section.vars.button_delete) }}
         </div>
 
         <div class="section-body{{ editor_language ? ' bg-1' }}">
           {% if editor_language %}
-            <div data-controller="monaco" data-monaco-language-value="{{ editor_language }}">
-              {{ form_row(section.content, { attr: section.content.vars.attr|merge({ 'data-monaco-target': 'input' }) }) }}
+            <div data-controller="monaco" data-monaco-language-value="{{ editor_language }}"{% if type == types.Mermaid %} data-mermaid-preview-target="editor"{% endif %}>
+              {{ form_row(section.content, { attr: section.content.vars.attr|merge({ 'data-monaco-target': 'input', 'data-mermaid-preview-target': 'source' }) }) }}
               {# Monaco owns this node: live re-renders must not touch it. #}
               <div id="{{ section.content.vars.id }}_editor" data-monaco-target="editor" data-live-ignore></div>
             </div>
+            {% if type == types.Mermaid %}
+              {# Rendered diagram, shown instead of the editor by the toolbar toggle; owned by JS. #}
+              <div
+                id="{{ section.content.vars.id }}_preview"
+                class="mermaid-preview"
+                tabindex="0"
+                title="Cliquer pour revenir au code"
+                data-mermaid-preview-target="preview"
+                data-action="click->mermaid-preview#showCode keydown->mermaid-preview#keydown"
+                data-live-ignore
+                hidden
+              ></div>
+            {% endif %}
           {% else %}
             {% set placeholder = placeholders[type ? type.value : ''] ?? 'Contenu' %}
             {{ form_row(section.content, { attr: section.content.vars.attr|merge({ placeholder: placeholder }) }) }}
