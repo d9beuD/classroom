@@ -119,9 +119,9 @@ export default class extends Controller<HTMLElement> {
     })
     this.inputTarget.hidden = true
 
-    // Grow with the content instead of scrolling inside a fixed box.
+    // Exactly as tall as the content (one line at least), instead of scrolling inside a fixed box.
     const resize = () => {
-      this.editorTarget.style.height = `${Math.max(120, editor.getContentHeight())}px`
+      this.editorTarget.style.height = `${editor.getContentHeight()}px`
       editor.layout()
     }
     editor.onDidContentSizeChange(resize)
