@@ -40,7 +40,7 @@ class ChapterSectionType extends AbstractType
                 'required' => false,
                 'placeholder' => 'Texte brut',
             ])
-            // shortcut: set to the row index on add, until positions are managed automatically.
+            // Set by the component on add/insert and by drag and drop (sortable_controller.ts).
             ->add('position', HiddenType::class)
         ;
 

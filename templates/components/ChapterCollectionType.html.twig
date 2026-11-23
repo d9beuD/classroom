@@ -1,3 +1,19 @@
+{# Menu of section types; each item calls addSection, before the section at `position` if given. #}
+{% macro section_type_menu(types, position = null) %}
+  <div class="menu">
+    {% for type in types %}
+      <button
+        type="button"
+        class="menu-item"
+        data-action="live#action"
+        data-live-action-param="addSection"
+        data-live-type-param="{{ type.value }}"
+        {% if position is not null %}data-live-position-param="{{ position }}"{% endif %}
+      >{{ type.label }}</button>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
 <div{{ attributes }}>
   {{ form_start(form) }}
     {{ form_row(form.title) }}
@@ -18,7 +34,16 @@
       {% endif %}
       {# Monaco language id, for sections edited in Monaco instead of the textarea. #}
       {% set editor_language = type == types.Code ? (section.language.vars.value ?: 'plaintext') : (type == types.Mermaid ? 'mermaid' : null) %}
-      <div class="card mb-3">
+      {% if not loop.first %}
+        {# Insert before this section. The id carries the position, so an ignored menu never goes stale. #}
+        <div id="chapter-section-insert-{{ section.position.vars.value }}" class="d-flex justify-content-center py-1" data-live-ignore>
+          <button class="btn-icon btn-text btn-xs" type="button" data-bs-toggle="menu" aria-expanded="false" aria-label="Insérer une section ici" title="Insérer une section ici">
+            <i data-lucide="plus" aria-hidden="true"></i>
+          </button>
+          {{ _self.section_type_menu(this.sectionTypes, section.position.vars.value) }}
+        </div>
+      {% endif %}
+      <div class="card" data-sortable-item>
         <div class="card-header d-flex flex-row justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn-icon btn-text" aria-label="Déplacer" title="Déplacer" data-sortable-handle>
@@ -74,23 +99,13 @@
     </div>
     {% do form.sections.setRendered %}
 
-    {# Ignored by live re-renders: Floating UI's inline styles on .menu would otherwise be carried onto whatever node the morph reuses it for. #}
-    <div id="chapter-section-add-menu" data-live-ignore>
-    <button class="btn-subtle theme-primary" type="button" data-bs-toggle="menu" aria-expanded="false">
-      Ajouter
-    </button>
-    <div class="menu">
-      {% for type in this.sectionTypes %}
-        <button
-          type="button"
-          class="menu-item"
-          data-action="live#action"
-          data-live-action-param="addSection"
-          data-live-type-param="{{ type.value }}"
-        >{{ type.label }}</button>
-      {% endfor %}
+    {# Add after the last section. Ignored by live re-renders: Floating UI's inline styles on .menu would otherwise be carried onto whatever node the morph reuses it for. #}
+    <div id="chapter-section-add-menu" class="d-flex justify-content-center py-1 mb-3" data-live-ignore>
+      <button class="btn-icon btn-text btn-xs" type="button" data-bs-toggle="menu" aria-expanded="false" aria-label="Ajouter une section à la fin" title="Ajouter une section à la fin">
+        <i data-lucide="plus" aria-hidden="true"></i>
+      </button>
+      {{ _self.section_type_menu(this.sectionTypes) }}
     </div>
-  </div>
 
     <div class="text-end">
       <button class="btn-subtle theme-primary">{{ buttonLabel }}</button>

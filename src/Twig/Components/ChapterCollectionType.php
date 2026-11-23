@@ -39,15 +39,31 @@ final class ChapterCollectionType extends AbstractController
     }
 
     #[LiveAction]
-    public function addSection(PropertyAccessorInterface $propertyAccessor, #[LiveArg] string $type): void
+    /**
+     * Adds a section of the given type at the end, or before the section at $position
+     * (later sections move down one position).
+     */
+    public function addSection(PropertyAccessorInterface $propertyAccessor, #[LiveArg] string $type, #[LiveArg] ?int $position = null): void
     {
         $type = ChapterSectionType::tryFrom($type) ?? throw new BadRequestHttpException('Invalid section type.');
+
+        $sections = $this->formValues['sections'] ?? [];
+        $positions = array_map(fn (array $section): int => (int) ($section['position'] ?? 0), $sections);
+        if (null === $position) {
+            $position = [] === $positions ? 0 : max($positions) + 1;
+        } else {
+            foreach ($positions as $key => $current) {
+                if ($current >= $position) {
+                    $this->formValues['sections'][$key]['position'] = $current + 1;
+                }
+            }
+        }
 
         // Same name the delete buttons send, so removed indexes are never reused.
         $this->addCollectionItem($propertyAccessor, $this->formName.'[sections]');
         $index = array_key_last($this->formValues['sections']);
         $this->formValues['sections'][$index]['type'] = $type->value;
-        $this->formValues['sections'][$index]['position'] = $index;
+        $this->formValues['sections'][$index]['position'] = $position;
     }
 
     protected function instantiateForm(): FormInterface
