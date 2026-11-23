@@ -24,11 +24,16 @@ const mermaidLanguage = {
 // starts directly in PHP code (an opening tag is still accepted), for snippets.
 const PHP_SNIPPET = 'php-snippet'
 
-const registerPhpSnippet = async (monaco: Monaco) => {
+// Registered up front, but the PHP grammar is only downloaded when a PHP editor first needs it.
+const registerPhpSnippet = (monaco: Monaco) => {
+  monaco.languages.register({ id: PHP_SNIPPET })
+  monaco.languages.onLanguage(PHP_SNIPPET, () => loadPhpSnippet(monaco))
+}
+
+const loadPhpSnippet = async (monaco: Monaco) => {
   const php = monaco.languages.getLanguages().find(language => language.id === 'php') as any
   const { language, conf } = await php.loader()
 
-  monaco.languages.register({ id: PHP_SNIPPET })
   monaco.languages.setLanguageConfiguration(PHP_SNIPPET, conf)
   monaco.languages.setMonarchTokensProvider(PHP_SNIPPET, {
     ...language,
@@ -44,12 +49,25 @@ const registerPhpSnippet = async (monaco: Monaco) => {
 
 const editorLanguage = (language: string) => language === 'php' ? PHP_SNIPPET : language
 
+// Per-language editor settings, keyed by the stored language id (not the Monaco one):
+// each language's usual convention, 2 spaces otherwise.
+const FOUR_SPACE_LANGUAGES = [
+  'c', 'cpp', 'csharp', 'fsharp', 'java', 'julia', 'kotlin', 'objective-c', 'perl',
+  'php', 'powershell', 'python', 'rust', 'swift', 'vb',
+]
+const TAB_LANGUAGES = ['go']
+
+const languageOptions = (language: string) => ({
+  tabSize: FOUR_SPACE_LANGUAGES.includes(language) || TAB_LANGUAGES.includes(language) ? 4 : 2,
+  insertSpaces: !TAB_LANGUAGES.includes(language),
+})
+
 let monacoPromise: Promise<Monaco> | undefined
 
-const loadMonaco = () => monacoPromise ??= loader.init().then(async monaco => {
+const loadMonaco = () => monacoPromise ??= loader.init().then(monaco => {
   monaco.languages.register({ id: 'mermaid' })
   monaco.languages.setMonarchTokensProvider('mermaid', mermaidLanguage as any)
-  await registerPhpSnippet(monaco)
+  registerPhpSnippet(monaco)
   return monaco
 })
 
@@ -80,6 +98,9 @@ export default class extends Controller<HTMLElement> {
     const editor = this.editor = monaco.editor.create(this.editorTarget, {
       value: this.inputTarget.value,
       language: editorLanguage(this.languageValue),
+      // Indentation comes from languageOptions(), not from guessing on the content.
+      detectIndentation: false,
+      ...languageOptions(this.languageValue),
       theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs',
       ariaLabel: this.inputTarget.getAttribute('aria-label') ?? undefined,
       automaticLayout: true,
@@ -117,6 +138,9 @@ export default class extends Controller<HTMLElement> {
 
   languageValueChanged() {
     const model = this.editor?.getModel()
-    if (model) this.monaco?.editor.setModelLanguage(model, editorLanguage(this.languageValue))
+    if (!model) return
+
+    this.monaco?.editor.setModelLanguage(model, editorLanguage(this.languageValue))
+    model.updateOptions(languageOptions(this.languageValue))
   }
 }

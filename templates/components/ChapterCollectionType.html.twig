@@ -33,9 +33,11 @@
               {# Ignored by live re-renders: the combobox owns its toggle text and menu position. #}
               <div id="{{ section.language.vars.id }}_combobox" data-live-ignore>
                 <button
-                  class="btn-text btn-sm combobox-toggle w-auto"
+                  class="btn-text combobox-toggle w-auto"
                   type="button"
                   data-bs-toggle="combobox"
+                  data-bs-search="true"
+                  data-bs-search-normalize="true"
                   data-combobox-input="{{ section.language.vars.id }}"
                   aria-label="Langage"
                 >
@@ -43,10 +45,14 @@
                   <i data-lucide="chevron-down" class="combobox-caret" aria-hidden="true"></i>
                 </button>
                 <div class="menu">
+                  <div class="combobox-search">
+                    <input type="search" class="form-control form-control-sm combobox-search-input" placeholder="Rechercher…" aria-label="Rechercher un langage" autocomplete="off">
+                  </div>
                   <button class="menu-item{{ language ? '' : ' selected' }}" type="button" data-bs-value="" aria-selected="{{ language ? 'false' : 'true' }}">Texte brut</button>
                   {% for case in enum_cases('App\\EntityEnum\\ChapterSectionLanguage') %}
                     <button class="menu-item{{ case == language ? ' selected' }}" type="button" data-bs-value="{{ case.value }}" aria-selected="{{ case == language ? 'true' : 'false' }}">{{ case.label }}</button>
                   {% endfor %}
+                  <div class="combobox-no-results d-none">Aucun langage</div>
                 </div>
               </div>
             {% endif %}

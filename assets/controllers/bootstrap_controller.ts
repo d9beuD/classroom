@@ -30,6 +30,16 @@ const onComboboxChange = (event: Event) => {
   input.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
+// Enter in a combobox search field picks the first match instead of submitting the form.
+const onComboboxSearchKeydown = (event: KeyboardEvent) => {
+  const input = event.target as HTMLElement
+  if (event.key !== 'Enter' || !input.matches?.('.combobox-search-input')) return
+
+  event.preventDefault()
+  const items = input.closest('.menu')?.querySelectorAll<HTMLElement>('.menu-item[data-bs-value]') ?? []
+  Array.from(items).find(item => item.style.display !== 'none')?.click()
+}
+
 export default class extends Controller {
   connect() {
     Array.from(document.querySelectorAll('.strength'))
@@ -41,10 +51,12 @@ export default class extends Controller {
     renderIcons()
     this.element.addEventListener('live:connect', onLiveConnect)
     this.element.addEventListener('change.bs.combobox', onComboboxChange)
+    this.element.addEventListener('keydown', onComboboxSearchKeydown)
   }
 
   disconnect() {
     this.element.removeEventListener('live:connect', onLiveConnect)
     this.element.removeEventListener('change.bs.combobox', onComboboxChange)
+    this.element.removeEventListener('keydown', onComboboxSearchKeydown)
   }
 }
