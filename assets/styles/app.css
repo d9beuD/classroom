@@ -279,6 +279,13 @@ button[data-sortable-handle]:active {
 @page {
   size: A4;
   margin: 1.5cm .75cm;
+
+  /* Page number, e.g. "1 / 3" (Chrome/Edge 131+; Firefox and Safari ignore @page margin boxes). */
+  @bottom-center {
+    content: counter(page) " / " counter(pages);
+    font: 9pt sans-serif;
+    color: #000;
+  }
 }
 
 @media print {
