@@ -40,15 +40,19 @@ final class ChapterCollectionType extends AbstractController
 
     #[LiveAction]
     /**
-     * Adds a section of the given type at the end, or before the section at $position
-     * (later sections move down one position).
+     * Adds a section of the given type at the end, or right after the section with collection
+     * key $after (later sections move down one position).
      */
-    public function addSection(PropertyAccessorInterface $propertyAccessor, #[LiveArg] string $type, #[LiveArg] ?int $position = null): void
+    public function addSection(PropertyAccessorInterface $propertyAccessor, #[LiveArg] string $type, #[LiveArg] ?string $after = null): void
     {
         $type = ChapterSectionType::tryFrom($type) ?? throw new BadRequestHttpException('Invalid section type.');
 
         $sections = $this->formValues['sections'] ?? [];
         $positions = array_map(fn (array $section): int => (int) ($section['position'] ?? 0), $sections);
+        $position = null;
+        if (null !== $after) {
+            $position = ($positions[$after] ?? throw new BadRequestHttpException('Unknown section.')) + 1;
+        }
         if (null === $position) {
             $position = [] === $positions ? 0 : max($positions) + 1;
         } else {

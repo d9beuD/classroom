@@ -31,3 +31,97 @@ button[data-sortable-handle] {
 button[data-sortable-handle]:active {
   cursor: grabbing;
 }
+
+/* Chapter sections, edited like a document: no frames, tools on hover/focus. */
+.section-block {
+  position: relative;
+  padding-block: .25rem;
+}
+
+.section-gutter,
+.section-tools {
+  position: absolute;
+  top: .25rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: .125rem;
+  opacity: 0;
+  transition: opacity .15s ease-in-out;
+}
+
+.section-gutter {
+  right: 100%;
+  padding-right: .25rem;
+}
+
+.section-tools {
+  right: .25rem;
+  gap: .25rem;
+  padding: .125rem .25rem;
+  border-radius: var(--bs-radius-5);
+  background-color: var(--bs-bg-body);
+  box-shadow: 0 1px 3px rgb(0 0 0 / .12);
+}
+
+.section-block:hover > :is(.section-gutter, .section-tools),
+.section-block:focus-within > :is(.section-gutter, .section-tools),
+.section-block:has(.show) > :is(.section-gutter, .section-tools) {
+  opacity: 1;
+}
+
+.section-type {
+  padding-inline: .25rem;
+  font-size: var(--bs-font-size-sm);
+  color: var(--bs-fg-3);
+}
+
+.section-body textarea.form-ghost {
+  min-height: 1.5em;
+  padding: .25rem .5rem;
+  resize: none;
+  field-sizing: content;
+}
+
+.section-heading textarea.form-ghost {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.section-heading-2 textarea.form-ghost { font-size: 1.75rem; }
+.section-heading-3 textarea.form-ghost { font-size: 1.5rem; }
+.section-heading-4 textarea.form-ghost { font-size: 1.25rem; }
+.section-heading-5 textarea.form-ghost { font-size: 1.1rem; }
+.section-heading-6 textarea.form-ghost { font-size: 1rem; }
+
+.section-quote .section-body {
+  margin-left: .5rem;
+  border-left: 3px solid var(--bs-border-color);
+}
+
+.section-quote textarea.form-ghost {
+  font-style: italic;
+}
+
+.section-callout .section-body {
+  padding: .5rem;
+  border-radius: var(--bs-radius-5);
+  background-color: var(--bs-theme-bg-subtle, var(--bs-bg-2));
+}
+
+.section-code .section-body,
+.section-mermaid .section-body {
+  padding-block: .5rem;
+  border-radius: var(--bs-radius-5);
+  background-color: var(--bs-bg-2);
+}
+
+/* Colour sample in a themed combobox item (the item carries the .theme-* class). */
+.color-swatch {
+  width: .875rem;
+  height: .875rem;
+  flex-shrink: 0;
+  border: 1px solid var(--bs-theme-border, var(--bs-border-color));
+  border-radius: 50%;
+  background-color: var(--bs-theme-bg-subtle, var(--bs-bg-2));
+}

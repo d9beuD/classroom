@@ -65,6 +65,10 @@ const languageOptions = (language: string) => ({
 let monacoPromise: Promise<Monaco> | undefined
 
 const loadMonaco = () => monacoPromise ??= loader.init().then(monaco => {
+  // Same colours as Monaco's, on a transparent background so the section's own background shows.
+  for (const [name, base] of [['classroom-light', 'vs'], ['classroom-dark', 'vs-dark']] as const) {
+    monaco.editor.defineTheme(name, { base, inherit: true, rules: [], colors: { 'editor.background': '#00000000' } })
+  }
   monaco.languages.register({ id: 'mermaid' })
   monaco.languages.setMonarchTokensProvider('mermaid', mermaidLanguage as any)
   registerPhpSnippet(monaco)
@@ -101,7 +105,10 @@ export default class extends Controller<HTMLElement> {
       // Indentation comes from languageOptions(), not from guessing on the content.
       detectIndentation: false,
       ...languageOptions(this.languageValue),
-      theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'vs-dark' : 'vs',
+      theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'classroom-dark' : 'classroom-light',
+      overviewRulerLanes: 0,
+      overviewRulerBorder: false,
+      hideCursorInOverviewRuler: true,
       ariaLabel: this.inputTarget.getAttribute('aria-label') ?? undefined,
       automaticLayout: true,
       // Dropping a dragged section card on the editor must not insert anything.

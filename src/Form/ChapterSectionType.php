@@ -8,6 +8,7 @@ use App\EntityEnum\ChapterSectionType as SectionType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,7 +25,7 @@ class ChapterSectionType extends AbstractType
                     'class' => 'form-field',
                 ],
                 'attr' => [
-                    'class' => 'form-ghost p-5',
+                    'class' => 'form-ghost',
                     'placeholder' => 'Contenu',
                     'aria-label' => 'Contenu',
                 ],
@@ -32,6 +33,12 @@ class ChapterSectionType extends AbstractType
             // Set by the "Ajouter" menu of the ChapterCollectionType component.
             ->add('type', HiddenType::class)
             ->add('variant')
+            // Only rendered for heading sections.
+            ->add('level', ChoiceType::class, [
+                'choices' => array_combine(array_map(fn (int $level): string => 'Niveau '.$level, range(2, 6)), range(2, 6)),
+                'label' => 'Niveau',
+                'required' => false,
+            ])
             // Only rendered for code sections; null means plain text.
             ->add('language', EnumType::class, [
                 'class' => ChapterSectionLanguage::class,

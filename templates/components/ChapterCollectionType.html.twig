@@ -1,5 +1,5 @@
-{# Menu of section types; each item calls addSection, before the section at `position` if given. #}
-{% macro section_type_menu(types, position = null) %}
+{# Menu of section types; each item calls addSection, after the section with collection key `after` if given, else at the end. #}
+{% macro section_type_menu(types, after = null) %}
   <div class="menu">
     {% for type in types %}
       <button
@@ -8,11 +8,82 @@
         data-action="live#action"
         data-live-action-param="addSection"
         data-live-type-param="{{ type.value }}"
-        {% if position is not null %}data-live-position-param="{{ position }}"{% endif %}
+        {% if after is not null %}data-live-after-param="{{ after }}"{% endif %}
       >{{ type.label }}</button>
     {% endfor %}
   </div>
 {% endmacro %}
+
+{#
+  Ghost combobox for a choice field. The hidden input is the real form field; the combobox writes
+  to it (see bootstrap_controller.ts). `options` maps values to labels; `empty_label` adds a "no value" item;
+  `default` is the value used (and saved) when the field is empty; `themed` shows each value
+  (a Bootstrap theme name) in its own colour, with a swatch.
+#}
+{% macro combobox(field, options, label, empty_label = null, search = false, default = null, themed = false) %}
+  {% set current = field.vars.value is same as('') or field.vars.value is null ? default : field.vars.value %}
+  <input type="hidden" id="{{ field.vars.id }}" name="{{ field.vars.full_name }}" value="{{ current }}">
+  {% do field.setRendered %}
+  {# Ignored by live re-renders: the combobox owns its toggle text and menu position. #}
+  <div id="{{ field.vars.id }}_combobox" data-live-ignore>
+    <button
+      class="btn-text btn-xs combobox-toggle w-auto"
+      type="button"
+      data-bs-toggle="combobox"
+      {% if search %}data-bs-search="true" data-bs-search-normalize="true"{% endif %}
+      data-combobox-input="{{ field.vars.id }}"
+      aria-label="{{ label }}"
+    >
+      <span class="combobox-value">{{ options[current] ?? empty_label }}</span>
+      <i data-lucide="chevron-down" class="combobox-caret" aria-hidden="true"></i>
+    </button>
+    <div class="menu">
+      {% if search %}
+        <div class="combobox-search">
+          <input type="search" class="form-control form-control-sm combobox-search-input" placeholder="Rechercher…" aria-label="Rechercher" autocomplete="off">
+        </div>
+      {% endif %}
+      {% if empty_label is not null %}
+        <button class="menu-item{{ current ? '' : ' selected' }}{{ themed ? ' theme-reset' }}" type="button" data-bs-value="" aria-selected="{{ current ? 'false' : 'true' }}">{{ _self.combobox_item_text(empty_label, themed) }}</button>
+      {% endif %}
+      {% for value, text in options %}
+        <button class="menu-item{{ value == current ? ' selected' }}{{ themed ? ' theme-' ~ value }}" type="button" data-bs-value="{{ value }}" aria-selected="{{ value == current ? 'true' : 'false' }}">{{ _self.combobox_item_text(text, themed) }}</button>
+      {% endfor %}
+      {% if search %}
+        <div class="combobox-no-results d-none">Aucun résultat</div>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro combobox_item_text(text, themed) %}
+  {%- if themed -%}
+    <span class="d-flex align-items-center gap-2"><span class="color-swatch" aria-hidden="true"></span>{{ text }}</span>
+  {%- else -%}
+    {{ text }}
+  {%- endif -%}
+{% endmacro %}
+
+{% set types = enum('App\\EntityEnum\\ChapterSectionType') %}
+{% set language_options = {} %}
+{% for language in enum_cases('App\\EntityEnum\\ChapterSectionLanguage') %}
+  {% set language_options = language_options|merge({(language.value): language.label}) %}
+{% endfor %}
+{% set variant_options = {} %}
+{% for variant in enum_cases('App\\EntityEnum\\ChapterSectionVariant') %}
+  {% set variant_options = variant_options|merge({(variant.value): variant.label}) %}
+{% endfor %}
+{% set level_options = {} %}
+{% for level in 2..6 %}
+  {% set level_options = level_options|merge({('' ~ level): 'Niveau ' ~ level}) %}
+{% endfor %}
+{% set placeholders = {
+  heading: 'Titre',
+  paragraph: 'Écrivez quelque chose…',
+  quote: 'Citation',
+  table: 'Tableau',
+  callout: 'Texte de l’encadré',
+} %}
 
 <div{{ attributes }}>
   {{ form_start(form) }}
@@ -21,10 +92,10 @@
     {{ form_row(form.position) }}
 
     {# Sorted by position so a re-render after a drag-and-drop keeps the new order. #}
-    <div data-controller="sortable">
+    <div class="section-list" data-controller="sortable">
     {% for section in form.sections.children|sort((a, b) => a.position.vars.value <=> b.position.vars.value) %}
-      {% set types = enum('App\\EntityEnum\\ChapterSectionType') %}
       {% set type = types.tryFrom(section.type.vars.value) %}
+      {% set position = section.position.vars.value %}
       {# Not rendered = not submitted, so the form clears variant/language for other section types. #}
       {% if type != types.Callout %}
         {% do section.variant.setRendered %}
@@ -32,65 +103,58 @@
       {% if type != types.Code %}
         {% do section.language.setRendered %}
       {% endif %}
+      {% if type != types.Heading %}
+        {% do section.level.setRendered %}
+      {% endif %}
       {# Monaco language id, for sections edited in Monaco instead of the textarea. #}
       {% set editor_language = type == types.Code ? (section.language.vars.value ?: 'plaintext') : (type == types.Mermaid ? 'mermaid' : null) %}
-      {% if not loop.first %}
-        {# Insert before this section. The id carries the position, so an ignored menu never goes stale. #}
-        <div id="chapter-section-insert-{{ section.position.vars.value }}" class="d-flex justify-content-center py-1" data-live-ignore>
-          <button class="btn-icon btn-text btn-xs" type="button" data-bs-toggle="menu" aria-expanded="false" aria-label="Insérer une section ici" title="Insérer une section ici">
-            <i data-lucide="plus" aria-hidden="true"></i>
-          </button>
-          {{ _self.section_type_menu(this.sectionTypes, section.position.vars.value) }}
-        </div>
-      {% endif %}
-      <div class="card" data-sortable-item>
-        <div class="card-header d-flex flex-row justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn-icon btn-text" aria-label="Déplacer" title="Déplacer" data-sortable-handle>
-              <i data-lucide="grip-vertical" aria-hidden="true"></i>
+      {% set variant = type == types.Callout ? section.variant.vars.value : null %}
+      {# Headings without a level yet (created before levels existed) show and save as level 2. #}
+      {% set level = type == types.Heading ? (section.level.vars.value ?: 2) : null %}
+
+      {#
+        The id (from the collection key, which never changes or gets reused) makes live re-renders
+        match each block to itself: otherwise, after a delete, a block's DOM is reused for the next
+        one, and its data-live-ignore children (never removed by Live Components) pile up.
+      #}
+      <div id="chapter-section-{{ section.vars.name }}" class="section-block section-{{ type ? type.value : 'unknown' }}{{ variant ? ' theme-' ~ variant }}{{ level ? ' section-heading-' ~ level }}" data-sortable-item>
+        {# Left margin, shown on hover/focus: add a section below, drag handle. #}
+        <div class="section-gutter">
+          {# Keyed by collection key, not position, so this ignored menu never goes stale. #}
+          <div id="chapter-section-{{ section.vars.name }}-add-after" data-live-ignore>
+            <button class="btn-icon btn-text btn-xs" type="button" data-bs-toggle="menu" aria-expanded="false" aria-label="Ajouter une section en dessous" title="Ajouter une section en dessous">
+              <i data-lucide="plus" aria-hidden="true"></i>
             </button>
-            {{ type ? type.label }}
-            {% if type == types.Code %}
-              {% set language = enum('App\\EntityEnum\\ChapterSectionLanguage').tryFrom(section.language.vars.value) %}
-              {# The real form field; the combobox below writes to it (see bootstrap_controller.ts). #}
-              <input type="hidden" id="{{ section.language.vars.id }}" name="{{ section.language.vars.full_name }}" value="{{ section.language.vars.value }}">
-              {% do section.language.setRendered %}
-              {# Ignored by live re-renders: the combobox owns its toggle text and menu position. #}
-              <div id="{{ section.language.vars.id }}_combobox" data-live-ignore>
-                <button
-                  class="btn-text combobox-toggle w-auto"
-                  type="button"
-                  data-bs-toggle="combobox"
-                  data-bs-search="true"
-                  data-bs-search-normalize="true"
-                  data-combobox-input="{{ section.language.vars.id }}"
-                  aria-label="Langage"
-                >
-                  <span class="combobox-value">{{ language ? language.label : 'Texte brut' }}</span>
-                  <i data-lucide="chevron-down" class="combobox-caret" aria-hidden="true"></i>
-                </button>
-                <div class="menu">
-                  <div class="combobox-search">
-                    <input type="search" class="form-control form-control-sm combobox-search-input" placeholder="Rechercher…" aria-label="Rechercher un langage" autocomplete="off">
-                  </div>
-                  <button class="menu-item{{ language ? '' : ' selected' }}" type="button" data-bs-value="" aria-selected="{{ language ? 'false' : 'true' }}">Texte brut</button>
-                  {% for case in enum_cases('App\\EntityEnum\\ChapterSectionLanguage') %}
-                    <button class="menu-item{{ case == language ? ' selected' }}" type="button" data-bs-value="{{ case.value }}" aria-selected="{{ case == language ? 'true' : 'false' }}">{{ case.label }}</button>
-                  {% endfor %}
-                  <div class="combobox-no-results d-none">Aucun langage</div>
-                </div>
-              </div>
-            {% endif %}
+            {{ _self.section_type_menu(this.sectionTypes, section.vars.name) }}
           </div>
+          <button type="button" class="btn-icon btn-text btn-xs" aria-label="Déplacer ({{ type ? type.label }})" title="Déplacer" data-sortable-handle>
+            <i data-lucide="grip-vertical" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        {# Top right, shown on hover/focus: type, its settings, delete. #}
+        <div class="section-tools">
+          <span class="section-type">{{ type ? type.label }}</span>
+          {% if type == types.Code %}
+            {{ _self.combobox(section.language, language_options, 'Langage', 'Texte brut', true) }}
+          {% elseif type == types.Heading %}
+            {{ _self.combobox(section.level, level_options, 'Niveau du titre', null, false, '2') }}
+          {% elseif type == types.Callout %}
+            {{ _self.combobox(section.variant, variant_options, 'Couleur', 'Neutre', false, null, true) }}
+          {% endif %}
           {{ form_widget(section.vars.button_delete) }}
         </div>
-        <div class="card-body p-0">
+
+        <div class="section-body">
           {% if editor_language %}
             <div data-controller="monaco" data-monaco-language-value="{{ editor_language }}">
               {{ form_row(section.content, { attr: section.content.vars.attr|merge({ 'data-monaco-target': 'input' }) }) }}
               {# Monaco owns this node: live re-renders must not touch it. #}
               <div id="{{ section.content.vars.id }}_editor" data-monaco-target="editor" data-live-ignore></div>
             </div>
+          {% else %}
+            {% set placeholder = placeholders[type ? type.value : ''] ?? 'Contenu' %}
+            {{ form_row(section.content, { attr: section.content.vars.attr|merge({ placeholder: placeholder }) }) }}
           {% endif %}
           {{ form_row(section, { label: false }) }}
         </div>

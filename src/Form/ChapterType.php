@@ -44,7 +44,7 @@ class ChapterType extends AbstractType
                     'label_html' => true,
                     'translation_domain' => false,
                     'attr' => [
-                        'class' => 'btn-icon btn-subtle theme-danger',
+                        'class' => 'btn-icon btn-text btn-xs theme-danger',
                         'aria-label' => 'Supprimer',
                         'title' => 'Supprimer',
                     ],

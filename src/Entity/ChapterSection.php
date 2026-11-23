@@ -44,6 +44,10 @@ class ChapterSection
     #[ORM\Column(enumType: ChapterSectionLanguage::class, nullable: true)]
     private ?ChapterSectionLanguage $language = null;
 
+    /** Heading level (2 to 6) of a heading section; null for other types. */
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $level = null;
+
     #[ORM\Column]
     private ?int $position = null;
 
@@ -155,6 +159,18 @@ class ChapterSection
     public function setLanguage(?ChapterSectionLanguage $language): static
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    public function getLevel(): ?int
+    {
+        return $this->level;
+    }
+
+    public function setLevel(?int $level): static
+    {
+        $this->level = $level;
 
         return $this;
     }
