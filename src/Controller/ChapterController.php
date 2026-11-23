@@ -6,6 +6,7 @@ use App\Dto\ChapterOrder;
 use App\Entity\Chapter;
 use App\Entity\Course;
 use App\Form\ChapterType;
+use App\Markdown\ChapterRenderer;
 use App\Repository\ChapterRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +30,7 @@ final class ChapterController extends AbstractController
 
     #[Route('/course/{courseSlug:course.slug}/chapter/new', name: 'app_chapter_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_PROFESSOR')]
-    public function new(Course $course, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Course $course, Request $request, EntityManagerInterface $entityManager, ChapterRenderer $renderer): Response
     {
         $chapter = new Chapter();
         $chapter->setCourse($course);
@@ -39,6 +40,7 @@ final class ChapterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $chapter->setRenderedContent($renderer->render($chapter));
             $entityManager->persist($chapter);
             $entityManager->flush();
 
@@ -66,12 +68,13 @@ final class ChapterController extends AbstractController
 
     #[Route('/course/{courseSlug:course.slug}/chapter/{chapterSlug:chapter.slug}/edit', name: 'app_chapter_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_PROFESSOR')]
-    public function edit(Request $request, Chapter $chapter, Course $course, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Chapter $chapter, Course $course, EntityManagerInterface $entityManager, ChapterRenderer $renderer): Response
     {
         $form = $this->createForm(ChapterType::class, $chapter);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $chapter->setRenderedContent($renderer->render($chapter));
             $entityManager->flush();
 
             return $this->redirectToRoute('app_chapter_show', [

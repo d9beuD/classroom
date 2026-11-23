@@ -34,4 +34,8 @@
       </div>
     {% endif %}
 
+    {# Rendered when the chapter is saved (ChapterRenderer); user HTML is escaped there. #}
+    <article class="chapter-content mt-5">
+      {{ chapter.renderedContent|raw }}
+    </article>
 {% endblock %}

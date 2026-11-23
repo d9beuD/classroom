@@ -7,6 +7,7 @@ use App\EntityTrait\SluggableTrait;
 use App\Repository\ChapterRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChapterRepository::class)]
@@ -44,6 +45,10 @@ class Chapter implements SluggableInterface
 
     #[ORM\Column]
     private ?int $position = null;
+
+    /** HTML of all the sections, rendered when the chapter is saved (see ChapterRenderer). */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $renderedContent = null;
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
@@ -163,6 +168,18 @@ class Chapter implements SluggableInterface
     public function setPosition(int $position): static
     {
         $this->position = $position;
+
+        return $this;
+    }
+
+    public function getRenderedContent(): ?string
+    {
+        return $this->renderedContent;
+    }
+
+    public function setRenderedContent(?string $renderedContent): static
+    {
+        $this->renderedContent = $renderedContent;
 
         return $this;
     }
