@@ -87,6 +87,8 @@
 
 <div{{ attributes }}>
   {{ form_start(form) }}
+    {# Errors on the form itself (e.g. invalid CSRF token), which no field row shows. #}
+    {{ form_errors(form) }}
     {{ form_row(form.title) }}
     {{ form_row(form.excerpt) }}
 

@@ -2,6 +2,8 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Chapter;
+use App\Entity\Course;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -27,6 +29,10 @@ class AppFixtures extends Fixture
             $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
             $manager->persist($user);
         }
+
+        $course = new Course()->setLabel('HTML')->setIcon('code')->setIconColor('#e34f26')->setIconColorAlt('#ffffff');
+        $manager->persist($course);
+        $manager->persist(new Chapter()->setTitle('Histoire et contexte')->setExcerpt('Les origines du HTML.')->setCourse($course)->setPosition(0));
 
         $manager->flush();
     }
