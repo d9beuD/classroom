@@ -1,9 +1,14 @@
 name: Deploy
 
 # Run from the Actions tab, or via the API:
-# POST /repos/{owner}/{repo}/actions/workflows/deploy.yml/dispatches {"ref":"main"}
+# POST /repos/{owner}/{repo}/actions/workflows/deploy.yml/dispatches {"ref":"main","inputs":{"deploy-renderer":true}}
 on:
   workflow_dispatch:
+    inputs:
+      deploy-renderer:
+        description: Also deploy the renderer
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -66,8 +71,21 @@ jobs:
     permissions:
       id-token: write # for Tailscale workload identity federation
     steps:
-      - uses: d9beuD/deploy-coolify-tailscale@v1
+      # Renderer first, so a new app version never calls an old renderer.
+      - name: Deploy the renderer
+        if: inputs.deploy-renderer
+        uses: d9beuD/deploy-coolify-tailscale@v1
         with:
+          tailscale-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          tailscale-audience: ${{ secrets.TS_AUDIENCE }}
+          tailscale-tags: tag:d9beud-deploy
+          webhook: ${{ secrets.COOLIFY_RENDERER_DEPLOY_WEBHOOK }}
+          coolify-token: ${{ secrets.COOLIFY_TOKEN }}
+      - name: Deploy the app
+        uses: d9beuD/deploy-coolify-tailscale@v1
+        with:
+          # The runner is already in the tailnet if the renderer step ran.
+          connect-tailscale: ${{ !inputs.deploy-renderer }}
           tailscale-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           tailscale-audience: ${{ secrets.TS_AUDIENCE }}
           tailscale-tags: tag:d9beud-deploy
