@@ -60,7 +60,7 @@ final class ChapterRenderer
             // One line: a heading can't span several.
             ChapterSectionType::Heading => $this->markdown(str_repeat('#', $section->getLevel() ?? 2).' '.preg_replace('/\s+/', ' ', trim($content))),
             ChapterSectionType::Quote => $this->markdown('> '.str_replace("\n", "\n> ", $content)),
-            ChapterSectionType::Code => $this->code($content, $section->getLanguage()?->value ?? ''),
+            ChapterSectionType::Code => $this->code($content, $section->getLanguage()->value ?? ''),
             ChapterSectionType::Mermaid => $this->diagram($content),
             ChapterSectionType::Callout => \sprintf(
                 "<div class=\"alert%s\">\n%s</div>\n",
