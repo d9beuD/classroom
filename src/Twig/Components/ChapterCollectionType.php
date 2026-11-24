@@ -70,6 +70,7 @@ final class ChapterCollectionType extends AbstractController
         $this->formValues['sections'][$index]['position'] = $position;
     }
 
+    /** @return FormInterface<Chapter|null> */
     protected function instantiateForm(): FormInterface
     {
         return $this->createForm(ChapterType::class, $this->initialFormData);
