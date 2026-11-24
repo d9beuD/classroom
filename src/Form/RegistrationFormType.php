@@ -17,6 +17,15 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('name', options: [
+                'label' => 'Nom',
+                // setName() takes a string: let NotBlank reject an empty field instead of a TypeError.
+                'empty_data' => '',
+                'attr' => [
+                    'placeholder' => 'Nom',
+                    'autocomplete' => 'name',
+                ],
+            ])
             ->add('email', options: [
                 'label' => 'Adresse email',
                 'attr' => [

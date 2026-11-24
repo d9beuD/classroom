@@ -53,10 +53,19 @@ class Chapter implements SluggableInterface
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
+    #[ORM\Column]
+    private \DateTimeImmutable $createdAt;
+
+    /** Null for chapters created before authors were recorded. */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $author = null;
+
     public function __construct()
     {
         $this->feedbacks = new ArrayCollection();
         $this->sections = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -187,5 +196,30 @@ class Chapter implements SluggableInterface
     public function getSluggableText(): string
     {
         return $this->title;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Most recent change to one of the sections, or the creation date when there is none.
+     */
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return max([$this->createdAt, ...$this->sections->map(fn (ChapterSection $section): \DateTimeImmutable => $section->getUpdatedAt())->toArray()]);
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
+
+        return $this;
     }
 }

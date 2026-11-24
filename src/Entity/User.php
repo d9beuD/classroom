@@ -26,6 +26,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
+    /** Shown publicly, e.g. as a chapter's author. */
+    #[Assert\NotBlank(message: 'Veuillez entrer votre nom.')]
+    #[Assert\Length(max: 100)]
+    #[ORM\Column(length: 100)]
+    private ?string $name = null;
+
     /**
      * @var list<string> The user roles
      */
@@ -65,6 +71,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }

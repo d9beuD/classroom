@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\ChapterOrder;
 use App\Entity\Chapter;
 use App\Entity\Course;
+use App\Entity\User;
 use App\Form\ChapterType;
 use App\Markdown\ChapterRenderer;
 use App\Repository\ChapterRepository;
@@ -34,6 +35,9 @@ final class ChapterController extends AbstractController
     {
         $chapter = new Chapter();
         $chapter->setCourse($course);
+        $author = $this->getUser();
+        \assert($author instanceof User);
+        $chapter->setAuthor($author);
         // New chapters go last; the course overview reorders them.
         $chapter->setPosition(max([-1, ...$course->getChapters()->map(fn (Chapter $other): int => $other->getPosition())->toArray()]) + 1);
         $form = $this->createForm(ChapterType::class, $chapter);

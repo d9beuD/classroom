@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChapterSectionRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class ChapterSection
 {
     #[ORM\Id]
@@ -51,9 +52,13 @@ class ChapterSection
     #[ORM\Column]
     private ?int $position = null;
 
+    #[ORM\Column]
+    private \DateTimeImmutable $updatedAt;
+
     public function __construct()
     {
         $this->children = new ArrayCollection();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -185,5 +190,17 @@ class ChapterSection
         $this->position = $position;
 
         return $this;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    // Only fires when one of the section's own columns changed, so untouched sections keep their date.
+    #[ORM\PreUpdate]
+    public function touch(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

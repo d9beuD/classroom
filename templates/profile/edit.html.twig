@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="md:col-6 lg:col-4 md:ms-auto">
+        <h1>Profil</h1>
+
+        {% for message in app.flashes('success') %}
+          <p role="status">{{ message }}</p>
+        {% endfor %}
+
+        {{ form_start(form) }}
+            {{ form_row(form.name) }}
+
+            <button type="submit" class="btn-subtle theme-primary hover-lift mt-3">Enregistrer</button>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

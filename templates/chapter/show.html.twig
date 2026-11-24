@@ -27,6 +27,12 @@
       {{ chapter.excerpt }}
     </p>
 
+    <p class="fg-3">
+      {% if chapter.author %}Par {{ chapter.author.name }} · {% endif %}
+      Créé le <time datetime="{{ chapter.createdAt|date('c') }}">{{ chapter.createdAt|date('d/m/Y') }}</time>
+      · Mis à jour le <time datetime="{{ chapter.updatedAt|date('c') }}">{{ chapter.updatedAt|date('d/m/Y') }}</time>
+    </p>
+
     {% if is_granted('ROLE_PROFESSOR') %}
       <div class="d-flex gap-3 bg-1 p-3 rounded d-print-none">
         <a href="{{ path('app_chapter_edit', { courseSlug: course.slug, chapterSlug: chapter.slug }) }}">Modifier</a>
