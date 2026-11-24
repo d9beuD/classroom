@@ -90,5 +90,8 @@ RUN mkdir -p /app/var/cache/prod/pools/system /app/var/log /app/var/sass /app/tm
 
 EXPOSE 3000
 
+# start-period covers the entrypoint's cache warmup and migrations before the server is up.
+HEALTHCHECK --start-period=60s CMD curl -fsS http://localhost:3000/healthz || exit 1
+
 ENTRYPOINT ["app-prod-entrypoint"]
 CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

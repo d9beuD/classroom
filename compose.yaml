@@ -40,6 +40,9 @@ services:
     depends_on:
       - database
       - renderer
+    # Replaces the FrankenPHP image's default check (Caddy admin /metrics) so PHP and Symfony are covered too.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/healthz"]
     restart: unless-stopped
 
   # Shiki and Mermaid rendering for chapters (Node + Chromium); only reachable from the app.
