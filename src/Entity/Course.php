@@ -128,6 +128,6 @@ class Course implements SluggableInterface
 
     public function getSluggableText(): string
     {
-        return $this->label;
+        return (string) $this->label;
     }
 }

@@ -196,7 +196,7 @@ class Chapter implements SluggableInterface
 
     public function getSluggableText(): string
     {
-        return $this->title;
+        return (string) $this->title;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
