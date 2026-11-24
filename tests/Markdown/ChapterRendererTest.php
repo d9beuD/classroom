@@ -17,12 +17,16 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class ChapterRendererTest extends TestCase
 {
-    /** Requests sent to the renderer service: [path, decoded JSON payload]. */
+    /**
+     * Requests sent to the renderer service: [path, decoded JSON payload].
+     *
+     * @var list<array{string, mixed}>
+     */
     private array $requests = [];
 
     /**
-     * @param callable(string $path, array $payload): MockResponse|null $service answers of the renderer
-     *                                                                          service; null: it is down
+     * @param list<ChapterSection>                                                       $sections
+     * @param (callable(string $path, array<string, mixed> $payload): MockResponse)|null $service  answers of the renderer service; null: it is down
      */
     private function render(array $sections, ?callable $service = null): string
     {
@@ -32,7 +36,7 @@ final class ChapterRendererTest extends TestCase
         }
 
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($service): MockResponse {
-            $path = parse_url($url, \PHP_URL_PATH);
+            $path = (string) parse_url($url, \PHP_URL_PATH);
             $payload = json_decode($options['body'], true);
             $this->requests[] = [$path, $payload];
 
