@@ -82,11 +82,12 @@ RUN --mount=type=cache,target=/tmp/composer-cache \
 ENV APP_ENV=prod APP_DEBUG=0
 ENV APP_VERSION=${APP_VERSION}
 
-COPY . /app
+COPY --chown=${USER}:${USER} . /app
 
+# Only var/ and tmp/ are written at runtime: a recursive chown of /app would store vendor/ twice.
 RUN mkdir -p /app/var/cache/prod/pools/system /app/var/log /app/var/sass /app/tmp && \
 	composer run-script post-install-cmd --no-interaction && \
-	chown -R "${USER}:${USER}" /app
+	chown -R "${USER}:${USER}" /app/var /app/tmp
 
 EXPOSE 3000
 
