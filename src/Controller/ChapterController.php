@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Dto\ChapterOrder;
 use App\Entity\Chapter;
 use App\Entity\Course;
@@ -12,6 +11,7 @@ use App\Markdown\ChapterRenderer;
 use App\Repository\ChapterRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;

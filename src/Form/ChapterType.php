@@ -18,7 +18,7 @@ class ChapterType extends AbstractType
             ->add('title', null, [
                 'label' => 'Titre',
                 'attr' => [
-                    'placeholder' => 'Titre'
+                    'placeholder' => 'Titre',
                 ],
             ])
             ->add('excerpt', TextareaType::class, [

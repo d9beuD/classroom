@@ -2,10 +2,10 @@
 
 namespace App\Markdown;
 
-use App\EntityEnum\ChapterSectionVariant;
 use App\Entity\Chapter;
 use App\Entity\ChapterSection;
 use App\EntityEnum\ChapterSectionType;
+use App\EntityEnum\ChapterSectionVariant;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;

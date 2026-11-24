@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use SortDirection;
 
 #[ORM\Entity(repositoryClass: ChapterRepository::class)]
 class Chapter implements SluggableInterface
@@ -37,7 +36,7 @@ class Chapter implements SluggableInterface
      * @var Collection<int, ChapterSection>
      */
     #[ORM\OneToMany(targetEntity: ChapterSection::class, mappedBy: 'chapter', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['position' => SortDirection::Ascending])]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending])]
     private Collection $sections;
 
     #[ORM\ManyToOne(inversedBy: 'chapters')]

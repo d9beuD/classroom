@@ -31,7 +31,7 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Adresse email',
                 'attr' => [
                     'placeholder' => 'Adresse email',
-                ]
+                ],
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
@@ -49,7 +49,7 @@ class RegistrationFormType extends AbstractType
                 'label' => 'Mot de passe',
                 'attr' => [
                     'placeholder' => 'Mot de passe',
-                    'autocomplete' => 'new-password'
+                    'autocomplete' => 'new-password',
                 ],
                 'constraints' => [
                     new NotBlank(
