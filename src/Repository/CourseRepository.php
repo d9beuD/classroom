@@ -23,7 +23,7 @@ class CourseRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->leftJoin('c.chapters', 'ch')
-            ->orderBy('c.label', 'ASC')
+            ->orderBy('c.label')
             ->getQuery()
             ->getResult()
         ;
