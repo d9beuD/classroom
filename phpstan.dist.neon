@@ -1,5 +1,6 @@
 parameters:
-    level: 6
+    level: 8
+    tmpDir: var/cache/phpstan
     paths:
         - bin/
         - config/
@@ -8,3 +9,8 @@ parameters:
         - tests/
     excludePaths:
         - config/reference.php
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    doctrine:
+        objectManagerLoader: tests/object-manager.php
+        allowNullablePropertyForRequiredField: true
