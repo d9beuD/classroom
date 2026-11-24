@@ -13,6 +13,30 @@
   width: 1.5em;
 }
 
+.chapter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bs-spacer-2) var(--bs-spacer-5);
+  padding: var(--bs-spacer-3) 0;
+  border-block: 1px solid var(--bs-border-color);
+  list-style: none;
+}
+
+.chapter-meta li {
+  display: flex;
+  align-items: center;
+  gap: var(--bs-spacer-2);
+}
+
+/* Icon in a round chip tinted by the list's theme-* class. */
+.chapter-meta .lucide {
+  box-sizing: content-box;
+  padding: .4em;
+  border-radius: 50%;
+  color: var(--bs-theme-fg);
+  background: var(--bs-theme-bg-subtle);
+}
+
 .chapter-list .nav-link {
   --bs-nav-link-justify: start;
 }
