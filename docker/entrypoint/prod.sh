@@ -1,6 +1,9 @@
 #!/bin/sh
 set -eu
 
+# .env ships it empty; without it Live Components, CSRF and remember-me break at request time, not at boot.
+: "${APP_SECRET:?APP_SECRET must be set in the container environment}"
+
 APP_RUNTIME_ENV="${APP_ENV:-prod}"
 export TMPDIR=/app/tmp
 APP_RUN_USER="${APP_RUN_USER:-appuser}"
