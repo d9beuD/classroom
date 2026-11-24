@@ -22,7 +22,7 @@ final class AddUserRolesCommandTest extends KernelTestCase
         // An inert role, so other tests sharing the database still see a plain student.
         $this->assertSame(0, $this->tester->execute(['email' => AppFixtures::STUDENT_EMAIL, 'roles' => ['role_beta', 'ROLE_STUDENT']]));
 
-        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => AppFixtures::STUDENT_EMAIL]);
+        $user = self::getContainer()->get(UserRepository::class)->findOneBy(['email' => AppFixtures::STUDENT_EMAIL]) ?? self::fail('Missing fixture user.');
         $this->assertEqualsCanonicalizing(['ROLE_STUDENT', 'ROLE_BETA', 'ROLE_USER'], $user->getRoles());
     }
 
