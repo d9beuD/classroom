@@ -4,17 +4,49 @@ This is a Symfony project. Check `composer.json` for the exact Symfony/PHP versi
 in use, and read `symfony.lock` to see which recipes ran. Don't assume Doctrine,
 Twig, API Platform, Messenger, or Lock are installed unless one of those says so.
 
-## Ask before generating
+## Project stack
 
-If the task doesn't specify, ask rather than guess:
+Already decided, don't ask:
 
-- Persistence: Doctrine ORM, Doctrine ODM, or none?
-- Interface: server-rendered (Twig), API (Serializer, maybe API Platform), or both?
-- Auth: SecurityBundle, and which authenticator?
+- Persistence: Doctrine ORM, with migrations and fixtures (`src/DataFixtures`).
+- Interface: server-rendered Twig with Symfony Form. No API.
+- Auth: SecurityBundle with `form_login`.
+- Front end: AssetMapper + importmap (no Node bundler), Stimulus, Symfony UX
+  Turbo, Twig Components and Live Components, Bootstrap 6 (alpha).
 
-If you can't ask (no interactive channel), state the assumption you're making and
-pick the smallest option (e.g. no persistence layer) rather than scaffolding a
-full stack nobody asked for.
+## Project conventions
+
+- **Entities, no DTOs.** Forms, Live Components and services work on plain
+  Doctrine entities directly. Don't add DTOs, mappers or request objects.
+- **Enums where relevant.** A field with a fixed set of values is a backed PHP
+  enum in `src/EntityEnum/`, mapped with `enumType:` on the column and
+  `EnumType` in forms. Labels shown to users live on the enum (`label()`).
+- **Doctrine lifecycle logic** goes in `src/EntityListener/` with
+  `#[AsEntityListener]`; shared entity contracts in `src/EntityInterface/`.
+- **Turbo gives the SPA feel.** Pages navigate and forms submit through Turbo
+  Drive, so:
+  - JS that sets up the page belongs in a Stimulus controller's `connect()`/
+    `disconnect()`, never in `DOMContentLoaded` or inline scripts, which won't
+    re-run after a Turbo visit.
+  - A form submitted through Turbo must answer a failed submission with a 422
+    (Symfony's `render()` with a submitted, invalid form already does) and a
+    success with a redirect.
+  - Use Turbo Frames / Streams for partial updates before writing custom fetch
+    code.
+- **TypeScript only.** New front-end code is TypeScript (`.ts`) under `assets/`,
+  compiled by `sensiolabs/typescript-bundle` and typed by `tsconfig.json`
+  (`strict`). The remaining `.js` files are recipe-generated; leave them. Add
+  third-party packages with `bin/console importmap:require <pkg>`, not npm.
+- **Icons are Lucide.** Use `<i data-lucide="icon-name"></i>` in Twig. Every
+  icon must be imported and added to the `icons` object in
+  `assets/controllers/bootstrap_controller.ts` (PascalCase name, e.g.
+  `CalendarPlus` for `calendar-plus`), or it won't render. Keep that list
+  alphabetical.
+- **Twig Components first.** A reusable piece of UI is a Twig Component
+  (`src/Twig/Components/` + `templates/components/`), or a Live Component when
+  it needs server round-trips, rather than an `include` or a macro.
+- **User-facing text is hardcoded in French.** The app is single-language: no
+  translation keys, no `trans` filter, no files in `translations/`.
 
 ## Adding features: Flex, not hand-wiring
 
@@ -55,14 +87,18 @@ Three specifics worth spelling out, because they are easy to get wrong:
   `json_decode()` or `SerializerInterface` by hand. If neither package is
   installed yet, `composer require` them rather than falling back to manual
   parsing.
-- Use constructor property promotion, and `readonly` for DTOs and value objects.
+- Use constructor property promotion, and `readonly` for value objects (this
+  project doesn't use DTOs, see above).
 - Use `symfony/lock` (`LockFactory`) for mutual exclusion. A hand-built flag or
   lock file looks fine in review and is usually wrong under concurrency.
 
 ## Everyday workflow
 
-- Run the app with `symfony serve -d`, and commands with `symfony console ...`
-  (or `bin/console` when the Symfony CLI isn't available).
+- The app runs in Docker only (no `symfony serve`). `make up` starts it on
+  http://localhost:8000 (phpMyAdmin on :8080); `make init` builds and sets it up
+  from scratch. Run every PHP command inside the `app` container:
+  `docker compose exec app bin/console ...`, `docker compose exec app composer ...`.
+  The `renderer` service (Shiki + Mermaid) is only reachable from `app`.
 - When something fails, read `var/log/dev.log` and the web profiler
   (`/_profiler`) before changing code.
 - If `maker-bundle` is installed, prefer `bin/console make:*` with every argument
@@ -78,9 +114,17 @@ Three specifics worth spelling out, because they are easy to get wrong:
 
 ## Testing
 
-Install `symfony/test-pack` if it isn't already. Functional/HTTP tests extend
-`WebTestCase`; service-level tests extend `KernelTestCase`. Run
-`php bin/phpunit` (falls back to `vendor/bin/phpunit`). A feature isn't done
+Functional/HTTP tests extend `WebTestCase`; service-level tests extend
+`KernelTestCase`. Run `docker compose exec app bin/phpunit`.
+
+Tests run against SQLite, not the MariaDB used in dev: `tests/bootstrap.php`
+builds the schema from the Doctrine mapping (the migrations are MySQL-only) and
+loads `src/DataFixtures/AppFixtures` on every run. So:
+
+- A new entity or field gets fixture data in `AppFixtures`, and tests rely on
+  that data instead of creating their own setup.
+- Stick to portable DQL/QueryBuilder; no MySQL-only SQL or functions.
+- Tests share one database and see each other's writes. A feature isn't done
 until it has a test that exercises it the way a caller would, an HTTP request for
 a controller or a service call for a service, not just "it didn't throw."
 
