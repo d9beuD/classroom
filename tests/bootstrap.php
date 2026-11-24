@@ -11,3 +11,12 @@ if (method_exists(Dotenv::class, 'bootEnv')) {
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 }
+
+// Fresh SQLite test database with fixtures for each run. The migrations are MySQL-only, so the schema comes from the mapping.
+// shortcut: tests share this data and see each other's writes, add dama/doctrine-test-bundle once that causes flaky tests.
+foreach (['doctrine:schema:drop --force --full-database', 'doctrine:schema:create', 'doctrine:fixtures:load --no-interaction'] as $command) {
+    passthru(sprintf('%s %s/bin/console %s --env=test --quiet', escapeshellarg(PHP_BINARY), escapeshellarg(dirname(__DIR__)), $command), $exitCode);
+    if (0 !== $exitCode) {
+        throw new RuntimeException(sprintf('Test database setup failed: "%s".', $command));
+    }
+}
