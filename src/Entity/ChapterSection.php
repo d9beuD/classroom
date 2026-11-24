@@ -39,10 +39,10 @@ class ChapterSection
     #[ORM\Column(enumType: ChapterSectionType::class)]
     private ?ChapterSectionType $type = null;
 
-    #[ORM\Column(enumType: ChapterSectionVariant::class, nullable: true)]
+    #[ORM\Column(nullable: true, enumType: ChapterSectionVariant::class)]
     private ?ChapterSectionVariant $variant = null;
 
-    #[ORM\Column(enumType: ChapterSectionLanguage::class, nullable: true)]
+    #[ORM\Column(nullable: true, enumType: ChapterSectionLanguage::class)]
     private ?ChapterSectionLanguage $language = null;
 
     /** Heading level (2 to 6) of a heading section; null for other types. */

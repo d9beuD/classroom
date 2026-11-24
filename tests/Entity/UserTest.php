@@ -12,7 +12,7 @@ final class UserTest extends TestCase
     {
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
 
-        self::assertCount(1, $validator->validateProperty(new User(), 'name'));
-        self::assertCount(0, $validator->validateProperty((new User())->setName('Ada Lovelace'), 'name'));
+        $this->assertCount(1, $validator->validateProperty(new User(), 'name'));
+        $this->assertCount(0, $validator->validateProperty(new User()->setName('Ada Lovelace'), 'name'));
     }
 }

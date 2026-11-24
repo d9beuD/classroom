@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Course;
 use App\Form\CourseType;
 use App\Repository\ChapterRepository;
@@ -73,7 +74,7 @@ final class CourseController extends AbstractController
     }
 
     #[Route('/{slug:course}', name: 'app_course_delete', methods: ['POST'])]
-    public function delete(Request $request, Course $course, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Course $course, EntityManagerInterface $entityManager): RedirectResponse
     {
         if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($course);

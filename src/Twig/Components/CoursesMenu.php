@@ -7,10 +7,10 @@ use App\Repository\CourseRepository;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent]
-final class CoursesMenu
+final readonly class CoursesMenu
 {
     public function __construct(
-        protected CourseRepository $courseRepository,
+        private CourseRepository $courseRepository,
     ) {
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Markdown;
 
+use App\EntityEnum\ChapterSectionVariant;
 use App\Entity\Chapter;
 use App\Entity\ChapterSection;
 use App\EntityEnum\ChapterSectionType;
@@ -64,7 +65,7 @@ final class ChapterRenderer
             ChapterSectionType::Mermaid => $this->diagram($content),
             ChapterSectionType::Callout => \sprintf(
                 "<div class=\"alert%s\">\n%s</div>\n",
-                $section->getVariant() ? ' theme-'.$section->getVariant()->value : '',
+                $section->getVariant() instanceof ChapterSectionVariant ? ' theme-'.$section->getVariant()->value : '',
                 $this->markdown($content),
             ),
             default => $this->markdown($content),

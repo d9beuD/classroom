@@ -14,7 +14,7 @@ final class AddUserRolesCommandTest extends KernelTestCase
 
     protected function setUp(): void
     {
-        $this->tester = new CommandTester((new Application(self::bootKernel()))->find('app:user:add-roles'));
+        $this->tester = new CommandTester(new Application(self::bootKernel())->find('app:user:add-roles'));
     }
 
     public function testRolesAreAddedToTheUser(): void

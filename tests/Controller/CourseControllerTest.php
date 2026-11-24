@@ -8,7 +8,7 @@ final class CourseControllerTest extends WebTestCase
 {
     public function testCreatingACourseShowsAMessage(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/course/new');
         $client->submitForm('Save', [
             'course[label]' => 'Cours flash '.uniqid(),

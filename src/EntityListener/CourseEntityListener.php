@@ -14,7 +14,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class CourseEntityListener
 {
     public function __construct(
-        private SluggerInterface $slugger,
+        private readonly SluggerInterface $slugger,
     ) {
     }
 

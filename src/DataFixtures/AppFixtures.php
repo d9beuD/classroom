@@ -13,7 +13,7 @@ class AppFixtures extends Fixture
     public const STUDENT_EMAIL = 'student@example.com';
 
     public function __construct(
-        private UserPasswordHasherInterface $passwordHasher,
+        private readonly UserPasswordHasherInterface $passwordHasher,
     ) {
     }
 
@@ -23,7 +23,7 @@ class AppFixtures extends Fixture
             [self::PROFESSOR_EMAIL, 'Professeur Test', ['ROLE_PROFESSOR']],
             [self::STUDENT_EMAIL, 'Élève Test', ['ROLE_STUDENT']],
         ] as [$email, $name, $roles]) {
-            $user = (new User())->setEmail($email)->setName($name)->setRoles($roles);
+            $user = new User()->setEmail($email)->setName($name)->setRoles($roles);
             $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
             $manager->persist($user);
         }

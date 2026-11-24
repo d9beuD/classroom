@@ -8,7 +8,7 @@ final class HealthControllerTest extends WebTestCase
 {
     public function testAnonymousHealthCheckSucceeds(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/healthz');
 
         self::assertResponseStatusCodeSame(204);

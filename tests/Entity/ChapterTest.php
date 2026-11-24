@@ -12,7 +12,7 @@ final class ChapterTest extends TestCase
     {
         $chapter = new Chapter();
 
-        self::assertSame($chapter->getCreatedAt(), $chapter->getUpdatedAt());
+        $this->assertSame($chapter->getCreatedAt(), $chapter->getUpdatedAt());
     }
 
     public function testUpdatedAtIsTheLatestSectionChange(): void
@@ -25,7 +25,7 @@ final class ChapterTest extends TestCase
         usleep(1000);
         $recent->touch();
 
-        self::assertSame($recent->getUpdatedAt(), $chapter->getUpdatedAt());
-        self::assertGreaterThan($old->getUpdatedAt(), $chapter->getUpdatedAt());
+        $this->assertSame($recent->getUpdatedAt(), $chapter->getUpdatedAt());
+        $this->assertGreaterThan($old->getUpdatedAt(), $chapter->getUpdatedAt());
     }
 }

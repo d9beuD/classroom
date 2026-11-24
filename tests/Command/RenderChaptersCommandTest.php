@@ -21,9 +21,9 @@ final class RenderChaptersCommandTest extends TestCase
     public function testEveryChapterIsRenderedAgainAndSaved(): void
     {
         $chapters = [
-            (new Chapter())->addSection((new ChapterSection())->setType(ChapterSectionType::Paragraph)->setContent('Un')->setPosition(0)),
-            (new Chapter())->setRenderedContent('<p>Ancien rendu</p>')
-                ->addSection((new ChapterSection())->setType(ChapterSectionType::Paragraph)->setContent('Deux')->setPosition(0)),
+            new Chapter()->addSection(new ChapterSection()->setType(ChapterSectionType::Paragraph)->setContent('Un')->setPosition(0)),
+            new Chapter()->setRenderedContent('<p>Ancien rendu</p>')
+                ->addSection(new ChapterSection()->setType(ChapterSectionType::Paragraph)->setContent('Deux')->setPosition(0)),
         ];
 
         $repository = $this->createStub(ChapterRepository::class);

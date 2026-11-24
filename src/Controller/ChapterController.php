@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Dto\ChapterOrder;
 use App\Entity\Chapter;
 use App\Entity\Course;
@@ -127,7 +128,7 @@ final class ChapterController extends AbstractController
 
     #[Route('/chapter/{id}', name: 'app_chapter_delete', methods: ['POST'])]
     #[IsGranted('ROLE_PROFESSOR')]
-    public function delete(Request $request, Chapter $chapter, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Chapter $chapter, EntityManagerInterface $entityManager): RedirectResponse
     {
         if ($this->isCsrfTokenValid('delete'.$chapter->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($chapter);

@@ -10,7 +10,7 @@ final class SecurityControllerTest extends WebTestCase
 {
     public function testLoginGoesHomeEvenAfterBeingBouncedFromAProtectedPage(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/profile');
         $client->followRedirect();
 
@@ -26,7 +26,7 @@ final class SecurityControllerTest extends WebTestCase
 
     public function testWrongPasswordShowsAnError(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $client->request('GET', '/login');
         $client->submitForm('Se connecter', [
             'login[email]' => AppFixtures::STUDENT_EMAIL,
@@ -40,8 +40,8 @@ final class SecurityControllerTest extends WebTestCase
 
     public function testLogoutShowsAMessage(): void
     {
-        $client = static::createClient();
-        $client->loginUser(static::getContainer()->get(UserRepository::class)->findOneBy(['email' => AppFixtures::STUDENT_EMAIL]) ?? self::fail('Missing fixture user.'));
+        $client = self::createClient();
+        $client->loginUser(self::getContainer()->get(UserRepository::class)->findOneBy(['email' => AppFixtures::STUDENT_EMAIL]) ?? self::fail('Missing fixture user.'));
 
         $client->request('GET', '/logout');
         $client->followRedirect();

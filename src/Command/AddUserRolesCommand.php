@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -29,7 +30,7 @@ final readonly class AddUserRolesCommand
         #[Argument('The email of the user')] string $email,
         #[Argument('The roles to add (e.g. ROLE_PROFESSOR)')] array $roles,
     ): int {
-        if (!$user = $this->users->findOneBy(['email' => $email])) {
+        if (!($user = $this->users->findOneBy(['email' => $email])) instanceof User) {
             $io->error(\sprintf('No user found with the email "%s".', $email));
 
             return Command::FAILURE;
