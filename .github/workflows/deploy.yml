@@ -21,14 +21,27 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Build and push the image
+      - name: Log in to ghcr.io
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+      - name: Build and push the app image
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}" # ghcr.io rejects uppercase names
           docker build --target prod --tag "$IMAGE:$GITHUB_SHA" --tag "$IMAGE:latest" .
-          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+      - name: Build and push the renderer image, if docker/renderer changed
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}-renderer"
+          # Git tree hash of the build context: it changes only when a file in docker/renderer does.
+          TAG="$(git rev-parse HEAD:docker/renderer)"
+          if docker manifest inspect "$IMAGE:$TAG" > /dev/null 2>&1; then
+            echo "docker/renderer unchanged, $IMAGE:$TAG already exists: skipping."
+            exit 0
+          fi
+          docker build --tag "$IMAGE:$TAG" --tag "$IMAGE:latest" docker/renderer
+          docker push "$IMAGE:$TAG"
           docker push "$IMAGE:latest"
 
   deploy:
