@@ -30,3 +30,6 @@ jobs:
       - uses: ramsey/composer-install@v4
       - name: php-cs-fixer, Rector and PHPStan
         run: composer lint
+        env:
+          # .env.dev drops serverVersion, which makes Doctrine connect to the (absent) database to detect it.
+          DATABASE_URL: mysql://app:app_password@database:3306/app?serverVersion=12.3.0-MariaDB&charset=utf8mb4
