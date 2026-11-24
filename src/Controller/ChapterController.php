@@ -47,6 +47,7 @@ final class ChapterController extends AbstractController
             $chapter->setRenderedContent($renderer->render($chapter));
             $entityManager->persist($chapter);
             $entityManager->flush();
+            $this->addFlash('success', 'Chapitre créé.');
 
             return $this->redirectToRoute('app_chapter_show', [
                 'chapterSlug' => $chapter->getSlug(),
@@ -80,6 +81,7 @@ final class ChapterController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $chapter->setRenderedContent($renderer->render($chapter));
             $entityManager->flush();
+            $this->addFlash('success', 'Chapitre enregistré.');
 
             return $this->redirectToRoute('app_chapter_show', [
                 'chapterSlug' => $chapter->getSlug(),
@@ -130,6 +132,9 @@ final class ChapterController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$chapter->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($chapter);
             $entityManager->flush();
+            $this->addFlash('success', 'Chapitre supprimé.');
+        } else {
+            $this->addFlash('danger', 'Le chapitre n\'a pas pu être supprimé, veuillez réessayer.');
         }
 
         return $this->redirectToRoute('app_chapter_index', [], Response::HTTP_SEE_OTHER);

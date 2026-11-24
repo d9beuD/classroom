@@ -33,6 +33,7 @@ final class CourseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($course);
             $entityManager->flush();
+            $this->addFlash('success', 'Cours créé.');
 
             return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -60,6 +61,7 @@ final class CourseController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $this->addFlash('success', 'Cours enregistré.');
 
             return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -76,6 +78,9 @@ final class CourseController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($course);
             $entityManager->flush();
+            $this->addFlash('success', 'Cours supprimé.');
+        } else {
+            $this->addFlash('danger', 'Le cours n\'a pas pu être supprimé, veuillez réessayer.');
         }
 
         return $this->redirectToRoute('app_course_index', [], Response::HTTP_SEE_OTHER);

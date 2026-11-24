@@ -8,7 +8,9 @@
       <div class="md:col-6 lg:col-4 md:ms-auto">
         <h1>Connexion</h1>
 
-        {{ form_errors(form) }}
+        {% if error %}
+          <div class="alert theme-danger" role="alert">Identifiants invalides.</div>
+        {% endif %}
 
         {{ form_start(form) }}
           {{ form_widget(form) }}
