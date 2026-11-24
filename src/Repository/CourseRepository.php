@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Course;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Course>
@@ -23,7 +24,7 @@ class CourseRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->leftJoin('c.chapters', 'ch')
-            ->orderBy('c.label')
+            ->orderBy('c.label', SortDirection::Ascending)
             ->getQuery()
             ->getResult()
         ;
