@@ -39,7 +39,7 @@ final class ChapterController extends AbstractController
         \assert($author instanceof User);
         $chapter->setAuthor($author);
         // New chapters go last; the course overview reorders them.
-        $chapter->setPosition(max([-1, ...$course->getChapters()->map(fn (Chapter $other): int => $other->getPosition())->toArray()]) + 1);
+        $chapter->setPosition(max([-1, ...$course->getChapters()->map(fn (Chapter $other): int => (int) $other->getPosition())->toArray()]) + 1);
         $form = $this->createForm(ChapterType::class, $chapter);
         $form->handleRequest($request);
 
