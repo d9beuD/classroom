@@ -12,7 +12,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build and push the image
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}" # ghcr.io rejects uppercase names
+          docker build --target prod --tag "$IMAGE:$GITHUB_SHA" --tag "$IMAGE:latest" .
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+
   deploy:
+    needs: publish
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
