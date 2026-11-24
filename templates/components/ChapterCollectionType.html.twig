@@ -54,6 +54,7 @@
       {% endif %}
     </div>
   </div>
+  {{ form_errors(field) }}
 {% endmacro %}
 
 {% macro combobox_item_text(text, themed) %}
@@ -73,10 +74,8 @@
 {% for variant in enum_cases('App\\EntityEnum\\ChapterSectionVariant') %}
   {% set variant_options = variant_options|merge({(variant.value): variant.label}) %}
 {% endfor %}
-{% set level_options = {} %}
-{% for level in 2..6 %}
-  {% set level_options = level_options|merge({('' ~ level): 'Niveau ' ~ level}) %}
-{% endfor %}
+{# A literal: |merge would renumber these integer keys to 0..4. #}
+{% set level_options = {2: 'Niveau 2', 3: 'Niveau 3', 4: 'Niveau 4', 5: 'Niveau 5', 6: 'Niveau 6'} %}
 {% set placeholders = {
   heading: 'Titre',
   paragraph: 'Écrivez quelque chose…',

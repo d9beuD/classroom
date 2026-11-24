@@ -100,7 +100,8 @@ button[data-sortable-handle]:active {
 
 .section-block:hover > :is(.section-gutter, .section-tools),
 .section-block:focus-within > :is(.section-gutter, .section-tools),
-.section-block:has(.show) > :is(.section-gutter, .section-tools) {
+.section-block:has(.show) > :is(.section-gutter, .section-tools),
+.section-block:has(.section-tools .invalid-feedback) > .section-tools {
   opacity: 1;
 }
 
