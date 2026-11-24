@@ -24,6 +24,14 @@ final class SecurityControllerTest extends WebTestCase
         self::assertSelectorTextContains('.alert.theme-success', 'vous êtes connecté');
     }
 
+    public function testRedirectsKeepHttpsBehindTheReverseProxy(): void
+    {
+        $client = self::createClient([], ['HTTP_X_FORWARDED_PROTO' => 'https']);
+        $client->request('GET', '/profile');
+
+        self::assertResponseHeaderSame('Location', 'https://localhost/login');
+    }
+
     public function testWrongPasswordShowsAnError(): void
     {
         $client = self::createClient();
