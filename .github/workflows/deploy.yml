@@ -56,6 +56,5 @@ jobs:
           tailscale-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           tailscale-audience: ${{ secrets.TS_AUDIENCE }}
           tailscale-tags: tag:d9beud-deploy
-          coolify-url: ${{ vars.COOLIFY_URL }}
+          webhook: ${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}
           coolify-token: ${{ secrets.COOLIFY_TOKEN }}
-          uuid: ${{ vars.COOLIFY_APP_UUID }}
