@@ -28,10 +28,25 @@ final class ChapterControllerTest extends WebTestCase
             self::assertResponseIsSuccessful();
             self::assertSelectorTextContains('.course-images h2', 'Images du cours');
             self::assertSelectorExists('.course-images input[type=file]');
+            self::assertSelectorExists('dialog#course-images-drawer.drawer-end .course-images');
+            self::assertSelectorExists('button[data-bs-toggle=drawer][data-bs-target="#course-images-drawer"]');
             self::assertSelectorExists(\sprintf('.course-images [data-clipboard-text-param="![arbre](/uploads/courses/%d/arbre-01234567.png)"]', $course->getId()));
         } finally {
             new Filesystem()->remove($directory.'/arbre-01234567.png');
         }
+    }
+
+    public function testNewPageOffersTheCourseImagesDrawer(): void
+    {
+        $client = self::createClient();
+        $users = self::getContainer()->get(UserRepository::class);
+        $client->loginUser($users->findOneBy(['email' => AppFixtures::PROFESSOR_EMAIL]) ?? self::fail('Missing fixture user.'));
+
+        $client->request('GET', '/course/html/chapter/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('dialog#course-images-drawer .course-images input[type=file]');
+        self::assertSelectorExists('button[data-bs-toggle=drawer][data-bs-target="#course-images-drawer"]');
     }
 
     public function testInvalidCsrfTokenIsShownOnTheEditForm(): void

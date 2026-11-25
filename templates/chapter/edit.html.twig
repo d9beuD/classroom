@@ -3,7 +3,14 @@
 {% block title %}Edit Chapter{% endblock %}
 
 {% block main %}
-    <h1>Edit Chapter</h1>
+    <div class="row align-items-center">
+      <div class="col">
+        <h1>Edit Chapter</h1>
+      </div>
+      <div class="col-auto">
+        <twig:CourseImagesDrawerToggle />
+      </div>
+    </div>
 
     {{ include('chapter/_form.html.twig', {'button_label': 'Update'}) }}
 
@@ -13,5 +20,5 @@
 {% endblock %}
 
 {% block toc %}
-  <twig:CourseImages :course="course" />
+  <twig:CourseImagesDrawer :course="course" />
 {% endblock %}
