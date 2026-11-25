@@ -10,6 +10,6 @@ class Content extends ChapterSection
 {
     public function getType(): ChapterSectionType
     {
-        return ChapterSectionType::Paragraph;
+        return ChapterSectionType::Content;
     }
 }

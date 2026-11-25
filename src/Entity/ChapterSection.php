@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'type', type: 'string')]
 #[ORM\DiscriminatorMap([
-    ChapterSectionType::Paragraph->value => Content::class,
+    ChapterSectionType::Content->value => Content::class,
     ChapterSectionType::Heading->value => Title::class,
     ChapterSectionType::Quote->value => Quote::class,
     ChapterSectionType::Code->value => Code::class,

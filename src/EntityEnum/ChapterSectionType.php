@@ -13,7 +13,7 @@ use App\Entity\Title;
 /** A section's type. The values are the discriminator of ChapterSection's subclasses. */
 enum ChapterSectionType: string
 {
-    case Paragraph = 'paragraph';
+    case Content = 'content';
     case Heading = 'heading';
     case Quote = 'quote';
     case Code = 'code';
@@ -23,7 +23,7 @@ enum ChapterSectionType: string
     public function label(): string
     {
         return match ($this) {
-            self::Paragraph => 'Paragraphe',
+            self::Content => 'Paragraphe',
             self::Heading => 'Titre',
             self::Quote => 'Citation',
             self::Code => 'Code',
@@ -35,7 +35,7 @@ enum ChapterSectionType: string
     public function newSection(): ChapterSection
     {
         return match ($this) {
-            self::Paragraph => new Content(),
+            self::Content => new Content(),
             self::Heading => new Title(),
             self::Quote => new Quote(),
             self::Code => new Code(),
