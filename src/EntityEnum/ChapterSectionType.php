@@ -23,7 +23,7 @@ enum ChapterSectionType: string
     public function label(): string
     {
         return match ($this) {
-            self::Content => 'Paragraphe',
+            self::Content => 'Contenu',
             self::Heading => 'Titre',
             self::Quote => 'Citation',
             self::Code => 'Code',
