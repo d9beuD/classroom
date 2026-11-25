@@ -10,6 +10,7 @@ tests
 types
 public/bundles
 public/assets
+public/uploads
 assets/vendor
 docker/renderer
 .env.local
