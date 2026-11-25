@@ -50,14 +50,14 @@ class ChapterSectionType extends AbstractType
                 'class' => ChapterSectionVariant::class,
                 'required' => false,
                 'getter' => fn (ChapterSection $section): ?ChapterSectionVariant => $section instanceof Callout ? $section->getVariant() : null,
-                'setter' => fn (ChapterSection $section, ?ChapterSectionVariant $variant) => $section instanceof Callout ? $section->setVariant($variant) : null,
+                'setter' => fn (ChapterSection $section, ?ChapterSectionVariant $variant): ?Callout => $section instanceof Callout ? $section->setVariant($variant) : null,
             ])
             ->add('level', ChoiceType::class, [
                 'choices' => array_combine(array_map(fn (int $level): string => 'Niveau '.$level, range(2, 6)), range(2, 6)),
                 'label' => 'Niveau',
                 'required' => false,
                 'getter' => fn (ChapterSection $section): ?int => $section instanceof Title ? $section->getLevel() : null,
-                'setter' => fn (ChapterSection $section, ?int $level) => $section instanceof Title ? $section->setLevel($level) : null,
+                'setter' => fn (ChapterSection $section, ?int $level): ?Title => $section instanceof Title ? $section->setLevel($level) : null,
             ])
             // Null means plain text.
             ->add('language', EnumType::class, [
@@ -67,7 +67,7 @@ class ChapterSectionType extends AbstractType
                 'required' => false,
                 'placeholder' => 'Texte brut',
                 'getter' => fn (ChapterSection $section): ?ChapterSectionLanguage => $section instanceof Code ? $section->getLanguage() : null,
-                'setter' => fn (ChapterSection $section, ?ChapterSectionLanguage $language) => $section instanceof Code ? $section->setLanguage($language) : null,
+                'setter' => fn (ChapterSection $section, ?ChapterSectionLanguage $language): ?Code => $section instanceof Code ? $section->setLanguage($language) : null,
             ])
             // Set by the component on add/insert and by drag and drop (sortable_controller.ts).
             ->add('position', HiddenType::class)

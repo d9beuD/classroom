@@ -15,6 +15,7 @@ use Symfony\UX\LiveComponent\DefaultActionTrait;
 use Symfony\UX\Upload\Form\UploadType;
 use Symfony\UX\Upload\LiveComponent\Attribute\UploadTarget;
 use Symfony\UX\Upload\LiveComponent\ComponentWithUploadTrait;
+use Symfony\UX\Upload\Upload\UploadedFile;
 
 /**
  * A dropzone that stores each dropped image in the course, then the course's images; clicking
@@ -49,7 +50,7 @@ final class CourseImages
     {
         $this->applyUpload($property, $token);
         $upload = $this->getUpload('image');
-        if (null === $upload) {
+        if (!$upload instanceof UploadedFile) {
             return;
         }
 

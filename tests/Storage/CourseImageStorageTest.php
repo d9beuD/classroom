@@ -41,8 +41,8 @@ final class CourseImageStorageTest extends KernelTestCase
 
         $images = self::getContainer()->get(CourseImageStorage::class)->list($course);
 
-        self::assertFileExists($this->stored);
-        self::assertSame(['name' => 'schema-du-dom', 'url' => '/uploads/courses/'.$course->getId().'/schema-du-dom-abcdef12.png'], $images[0]);
-        self::assertCount(1, array_filter($images, fn (array $image): bool => 'schema-du-dom' === $image['name']));
+        $this->assertFileExists($this->stored);
+        $this->assertSame(['name' => 'schema-du-dom', 'url' => '/uploads/courses/'.$course->getId().'/schema-du-dom-abcdef12.png'], $images[0]);
+        $this->assertCount(1, array_filter($images, fn (array $image): bool => 'schema-du-dom' === $image['name']));
     }
 }

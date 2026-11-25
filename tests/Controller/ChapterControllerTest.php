@@ -105,8 +105,8 @@ final class ChapterControllerTest extends WebTestCase
         self::assertResponseRedirects();
 
         $section = self::getContainer()->get(ChapterSectionRepository::class)->findOneBy(['content' => 'echo 1;']);
-        self::assertInstanceOf(Code::class, $section);
-        self::assertSame(ChapterSectionLanguage::Php, $section->getLanguage());
+        $this->assertInstanceOf(Code::class, $section);
+        $this->assertSame(ChapterSectionLanguage::Php, $section->getLanguage());
     }
 
     public function testAddedSectionWithUnknownTypeIsRejected(): void
