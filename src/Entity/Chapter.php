@@ -169,6 +169,17 @@ class Chapter implements SluggableInterface
         return $this;
     }
 
+    /**
+     * The chapter $offset places away in the same course (-1 previous, 1 next), or null.
+     */
+    public function getSibling(int $offset): ?self
+    {
+        $chapters = $this->course?->getChapters()->getValues() ?? [];
+        $index = array_search($this, $chapters, true);
+
+        return false === $index ? null : $chapters[$index + $offset] ?? null;
+    }
+
     public function getPosition(): ?int
     {
         return $this->position;
