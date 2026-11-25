@@ -102,14 +102,14 @@ final class CourseControllerTest extends WebTestCase
 
         self::assertResponseRedirects('/course');
         $entityManager->clear();
-        self::assertNotNull($courses->find($targetId));
+        $this->assertNotNull($courses->find($targetId));
 
         $client->request('POST', '/course/'.$numericSlug, ['_token' => $token]);
 
         self::assertResponseRedirects('/course');
         $entityManager->clear();
-        self::assertNull($courses->find($numericCourseId));
-        self::assertNotNull($courses->find($targetId));
+        $this->assertNull($courses->find($numericCourseId));
+        $this->assertNotNull($courses->find($targetId));
     }
 
     /**
