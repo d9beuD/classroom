@@ -4,6 +4,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\Chapter;
 use App\Entity\ChapterSection;
+use App\Entity\Content;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use PHPUnit\Framework\TestCase;
@@ -20,8 +21,8 @@ final class ChapterTest extends TestCase
     public function testUpdatedAtIsTheLatestSectionChange(): void
     {
         $chapter = new Chapter();
-        $old = new ChapterSection();
-        $recent = new ChapterSection();
+        $old = new Content();
+        $recent = new Content();
         $chapter->addSection($old)->addSection($recent);
 
         usleep(1000);
@@ -33,7 +34,7 @@ final class ChapterTest extends TestCase
 
     public function testFillingTheRenderCacheIsNotAnEdit(): void
     {
-        $section = new ChapterSection();
+        $section = new Content();
         $before = $section->getUpdatedAt();
 
         usleep(1000);

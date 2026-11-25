@@ -2,9 +2,13 @@
 
 namespace App\Markdown;
 
+use App\Entity\Callout;
 use App\Entity\Chapter;
 use App\Entity\ChapterSection;
-use App\EntityEnum\ChapterSectionType;
+use App\Entity\Code;
+use App\Entity\Mermaid;
+use App\Entity\Quote;
+use App\Entity\Title;
 use App\EntityEnum\ChapterSectionVariant;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -63,13 +67,13 @@ final class ChapterRenderer
             return '';
         }
 
-        return match ($section->getType()) {
+        return match (true) {
             // One line: a heading can't span several.
-            ChapterSectionType::Heading => $this->markdown(str_repeat('#', $section->getLevel() ?? 2).' '.preg_replace('/\s+/', ' ', trim($content))),
-            ChapterSectionType::Quote => $this->markdown('> '.str_replace("\n", "\n> ", $content)),
-            ChapterSectionType::Code => $this->code($content, $section->getLanguage()->value ?? ''),
-            ChapterSectionType::Mermaid => $this->diagram($section, $content),
-            ChapterSectionType::Callout => \sprintf(
+            $section instanceof Title => $this->markdown(str_repeat('#', $section->getLevel() ?? 2).' '.preg_replace('/\s+/', ' ', trim($content))),
+            $section instanceof Quote => $this->markdown('> '.str_replace("\n", "\n> ", $content)),
+            $section instanceof Code => $this->code($content, $section->getLanguage()->value ?? ''),
+            $section instanceof Mermaid => $this->diagram($section, $content),
+            $section instanceof Callout => \sprintf(
                 "<div class=\"alert%s\">\n%s</div>\n",
                 $section->getVariant() instanceof ChapterSectionVariant ? ' theme-'.$section->getVariant()->value : '',
                 $this->markdown($content),
@@ -90,7 +94,7 @@ final class ChapterRenderer
      * The figure is stored on the section with the hash of its code, and reused while the code is unchanged.
      * A failed rendering isn't stored, so the next save tries again.
      */
-    private function diagram(ChapterSection $section, string $code): string
+    private function diagram(Mermaid $section, string $code): string
     {
         $hash = hash('xxh128', $code);
         if (!$this->force && $hash === $section->getRenderedHash() && null !== $section->getRenderedContent()) {

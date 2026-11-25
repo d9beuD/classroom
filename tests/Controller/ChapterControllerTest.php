@@ -3,6 +3,9 @@
 namespace App\Tests\Controller;
 
 use App\DataFixtures\AppFixtures;
+use App\Entity\Code;
+use App\EntityEnum\ChapterSectionLanguage;
+use App\Repository\ChapterSectionRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -48,5 +51,38 @@ final class ChapterControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorExists('#chapter_sections_0_level_error1');
+    }
+
+    public function testAddedSectionIsSavedAsItsTypeSubclass(): void
+    {
+        $client = self::createClient();
+        $users = self::getContainer()->get(UserRepository::class);
+        $client->loginUser($users->findOneBy(['email' => AppFixtures::PROFESSOR_EMAIL]) ?? self::fail('Missing fixture user.'));
+
+        $crawler = $client->request('GET', '/course/html/chapter/histoire-et-contexte/edit');
+        $form = $crawler->selectButton('Update')->form();
+        $values = $form->getPhpValues();
+        $values['chapter']['sections'][99] = ['content' => 'echo 1;', 'type' => 'code', 'language' => 'php', 'position' => 99];
+        $client->request('POST', $form->getUri(), $values);
+        self::assertResponseRedirects();
+
+        $section = self::getContainer()->get(ChapterSectionRepository::class)->findOneBy(['content' => 'echo 1;']);
+        self::assertInstanceOf(Code::class, $section);
+        self::assertSame(ChapterSectionLanguage::Php, $section->getLanguage());
+    }
+
+    public function testAddedSectionWithUnknownTypeIsRejected(): void
+    {
+        $client = self::createClient();
+        $users = self::getContainer()->get(UserRepository::class);
+        $client->loginUser($users->findOneBy(['email' => AppFixtures::PROFESSOR_EMAIL]) ?? self::fail('Missing fixture user.'));
+
+        $crawler = $client->request('GET', '/course/html/chapter/histoire-et-contexte/edit');
+        $form = $crawler->selectButton('Update')->form();
+        $values = $form->getPhpValues();
+        $values['chapter']['sections'][99] = ['content' => '| a |', 'type' => 'table', 'position' => 99];
+        $client->request('POST', $form->getUri(), $values);
+
+        self::assertResponseStatusCodeSame(400);
     }
 }
