@@ -25,8 +25,8 @@ final class ChapterRenderer
 {
     private readonly MarkdownConverter $converter;
 
-    /** Mermaid diagrams rendered so far in the current chapter, for unique SVG ids. */
-    private int $diagramCount = 0;
+    /** Whether the current render ignores the diagrams stored on the sections. */
+    private bool $force = false;
 
     public function __construct(
         private readonly RendererClient $renderer,
@@ -41,11 +41,14 @@ final class ChapterRenderer
         $this->converter = new MarkdownConverter($environment);
     }
 
-    public function render(Chapter $chapter): string
+    /**
+     * @param bool $force render diagrams again even when their code is unchanged (e.g. after a renderer change)
+     */
+    public function render(Chapter $chapter, bool $force = false): string
     {
         $sections = $chapter->getSections()->toArray();
         usort($sections, fn (ChapterSection $a, ChapterSection $b): int => $a->getPosition() <=> $b->getPosition());
-        $this->diagramCount = 0;
+        $this->force = $force;
 
         return implode('', array_map($this->renderSection(...), $sections));
     }
@@ -62,7 +65,7 @@ final class ChapterRenderer
             ChapterSectionType::Heading => $this->markdown(str_repeat('#', $section->getLevel() ?? 2).' '.preg_replace('/\s+/', ' ', trim($content))),
             ChapterSectionType::Quote => $this->markdown('> '.str_replace("\n", "\n> ", $content)),
             ChapterSectionType::Code => $this->code($content, $section->getLanguage()->value ?? ''),
-            ChapterSectionType::Mermaid => $this->diagram($content),
+            ChapterSectionType::Mermaid => $this->diagram($section, $content),
             ChapterSectionType::Callout => \sprintf(
                 "<div class=\"alert%s\">\n%s</div>\n",
                 $section->getVariant() instanceof ChapterSectionVariant ? ' theme-'.$section->getVariant()->value : '',
@@ -80,16 +83,30 @@ final class ChapterRenderer
 
     /**
      * A light and a dark rendering, one of which app.css hides, as Mermaid writes its colours in the SVG.
+     *
+     * The figure is stored on the section with the hash of its code, and reused while the code is unchanged.
+     * A failed rendering isn't stored, so the next save tries again.
      */
-    private function diagram(string $code): string
+    private function diagram(ChapterSection $section, string $code): string
     {
-        $id = 'mermaid-'.++$this->diagramCount;
+        $hash = hash('xxh128', $code);
+        if (!$this->force && $hash === $section->getRenderedHash() && null !== $section->getRenderedContent()) {
+            return $section->getRenderedContent();
+        }
+
+        // Derived from the code, not the diagram's rank, so adding or moving a diagram leaves the others' stored SVG valid.
+        // shortcut: two identical diagrams in one chapter share an SVG id (same styles, so no visible effect); dedupe if that ever matters.
+        $id = 'mermaid-'.substr($hash, 0, 12);
         $light = $this->renderer->mermaid($code, $id.'-light');
         $dark = null !== $light ? $this->renderer->mermaid($code, $id.'-dark', 'dark') : null;
+        if (null === $dark) {
+            return $this->markdown($this->fence($code, 'mermaid'));
+        }
 
-        return null !== $dark
-            ? "<figure class=\"mermaid-diagram\">\n<div class=\"mermaid-light\">".$light."</div>\n<div class=\"mermaid-dark\">".$dark."</div>\n</figure>\n"
-            : $this->markdown($this->fence($code, 'mermaid'));
+        $figure = "<figure class=\"mermaid-diagram\">\n<div class=\"mermaid-light\">".$light."</div>\n<div class=\"mermaid-dark\">".$dark."</div>\n</figure>\n";
+        $section->setRendered($hash, $figure);
+
+        return $figure;
     }
 
     /**

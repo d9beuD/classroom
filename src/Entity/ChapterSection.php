@@ -9,6 +9,7 @@ use App\Repository\ChapterSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChapterSectionRepository::class)]
@@ -54,6 +55,14 @@ class ChapterSection
 
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
+
+    /** Mermaid sections: xxh128 hash of the code that renderedContent was rendered from (see ChapterRenderer). */
+    #[ORM\Column(length: 32, nullable: true)]
+    private ?string $renderedHash = null;
+
+    /** Mermaid sections: the rendered diagram figure, reused while the code hash is unchanged. */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $renderedContent = null;
 
     public function __construct()
     {
@@ -197,10 +206,33 @@ class ChapterSection
         return $this->updatedAt;
     }
 
+    public function getRenderedHash(): ?string
+    {
+        return $this->renderedHash;
+    }
+
+    public function getRenderedContent(): ?string
+    {
+        return $this->renderedContent;
+    }
+
+    public function setRendered(?string $hash, ?string $content): static
+    {
+        $this->renderedHash = $hash;
+        $this->renderedContent = $content;
+
+        return $this;
+    }
+
     // Only fires when one of the section's own columns changed, so untouched sections keep their date.
     #[ORM\PreUpdate]
-    public function touch(): void
+    public function touch(PreUpdateEventArgs $args): void
     {
+        // Filling the render cache is not an edit.
+        if ([] === array_diff(array_keys($args->getEntityChangeSet()), ['renderedHash', 'renderedContent'])) {
+            return;
+        }
+
         $this->updatedAt = new \DateTimeImmutable();
     }
 }

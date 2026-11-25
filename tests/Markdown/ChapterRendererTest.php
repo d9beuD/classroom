@@ -28,13 +28,21 @@ final class ChapterRendererTest extends TestCase
      * @param list<ChapterSection>                                                       $sections
      * @param (callable(string $path, array<string, mixed> $payload): MockResponse)|null $service  answers of the renderer service; null: it is down
      */
-    private function render(array $sections, ?callable $service = null): string
+    private function render(array $sections, ?callable $service = null, bool $force = false): string
     {
         $chapter = new Chapter();
         foreach ($sections as $section) {
             $chapter->addSection($section);
         }
 
+        return $this->renderer($service)->render($chapter, $force);
+    }
+
+    /**
+     * @param (callable(string $path, array<string, mixed> $payload): MockResponse)|null $service
+     */
+    private function renderer(?callable $service): ChapterRenderer
+    {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($service): MockResponse {
             $path = (string) parse_url($url, \PHP_URL_PATH);
             $payload = json_decode($options['body'], true);
@@ -43,7 +51,13 @@ final class ChapterRendererTest extends TestCase
             return $service ? $service($path, $payload) : new MockResponse('', ['http_code' => 503]);
         });
 
-        return new ChapterRenderer(new RendererClient($httpClient, 'http://renderer:3000', new NullLogger()))->render($chapter);
+        return new ChapterRenderer(new RendererClient($httpClient, 'http://renderer:3000', new NullLogger()));
+    }
+
+    // A method, as PHPStan would narrow $this->requests after a first assertion on it.
+    private function requestCount(): int
+    {
+        return \count($this->requests);
     }
 
     private function section(ChapterSectionType $type, string $content, int $position = 0): ChapterSection
@@ -158,11 +172,45 @@ final class ChapterRendererTest extends TestCase
             fn (string $path, array $payload): MockResponse => new JsonMockResponse(['svg' => '<svg id="'.$payload['svgId'].'" theme="'.$payload['theme'].'"/>']),
         );
 
-        $figure = fn (int $n): string => "<figure class=\"mermaid-diagram\">\n"
-            ."<div class=\"mermaid-light\"><svg id=\"mermaid-$n-light\" theme=\"light\"/></div>\n"
-            ."<div class=\"mermaid-dark\"><svg id=\"mermaid-$n-dark\" theme=\"dark\"/></div>\n"
-            ."</figure>\n";
-        $this->assertSame($figure(1).$figure(2), $html);
+        $figure = function (string $code): string {
+            $id = 'mermaid-'.substr(hash('xxh128', $code), 0, 12);
+
+            return "<figure class=\"mermaid-diagram\">\n"
+                ."<div class=\"mermaid-light\"><svg id=\"$id-light\" theme=\"light\"/></div>\n"
+                ."<div class=\"mermaid-dark\"><svg id=\"$id-dark\" theme=\"dark\"/></div>\n"
+                ."</figure>\n";
+        };
+        $this->assertSame($figure('flowchart LR').$figure('pie'), $html);
+    }
+
+    public function testUnchangedDiagramIsNotRenderedAgain(): void
+    {
+        $diagram = $this->section(ChapterSectionType::Mermaid, 'pie');
+        $service = fn (): MockResponse => new JsonMockResponse(['svg' => '<svg/>']);
+
+        $first = $this->render([$diagram], $service);
+        $second = $this->render([$diagram], $service);
+
+        $this->assertSame($first, $second);
+        $this->assertSame(2, $this->requestCount(), 'Only the first render calls the service (light + dark).');
+
+        $diagram->setContent('flowchart LR');
+        $this->render([$diagram], $service);
+        $this->assertSame(4, $this->requestCount(), 'Changed code is rendered again.');
+
+        $this->render([$diagram], $service, force: true);
+        $this->assertSame(6, $this->requestCount(), 'A forced render ignores the stored diagram.');
+    }
+
+    public function testFailedDiagramIsNotStored(): void
+    {
+        $diagram = $this->section(ChapterSectionType::Mermaid, 'pie');
+
+        $this->render([$diagram]);
+        $this->assertNull($diagram->getRenderedHash());
+
+        $html = $this->render([$diagram], fn (): MockResponse => new JsonMockResponse(['svg' => '<svg/>']));
+        $this->assertStringContainsString('<figure class="mermaid-diagram">', $html);
     }
 
     public function testDiagramFallsBackToItsCodeWhenTheDarkRenderingFails(): void
