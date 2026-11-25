@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/course')]
 final class CourseController extends AbstractController
@@ -25,6 +26,7 @@ final class CourseController extends AbstractController
     }
 
     #[Route('/new', name: 'app_course_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PROFESSOR')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $course = new Course();
@@ -55,6 +57,7 @@ final class CourseController extends AbstractController
     }
 
     #[Route('/{slug:course}/edit', name: 'app_course_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PROFESSOR')]
     public function edit(Request $request, Course $course, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CourseType::class, $course);
@@ -74,6 +77,7 @@ final class CourseController extends AbstractController
     }
 
     #[Route('/{slug:course}', name: 'app_course_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_PROFESSOR')]
     public function delete(Request $request, Course $course, EntityManagerInterface $entityManager): RedirectResponse
     {
         if ($this->isCsrfTokenValid('delete'.$course->getId(), $request->getPayload()->getString('_token'))) {
