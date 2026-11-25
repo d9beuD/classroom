@@ -40,4 +40,5 @@ return [
     'sortablejs' => ['version' => '1.15.7'],
     '@monaco-editor/loader' => ['version' => '1.7.0'],
     'state-local' => ['version' => '1.0.7'],
+    '@symfony/ux-upload' => ['path' => './vendor/symfony/ux-upload/assets/dist/upload_controller.js'],
 ];

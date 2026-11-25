@@ -1,0 +1,11 @@
+{% props course %}
+{# The course images aside, as a drawer from the right while the page is too narrow for three columns (see CourseImagesDrawerToggle). #}
+<dialog class="xl:drawer drawer-end" data-bs-scroll="true" id="course-images-drawer" aria-labelledby="course-images-drawer-label">
+  <div class="drawer-header">
+    <h5 class="drawer-title" id="course-images-drawer-label">Images du cours</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Fermer"></button>
+  </div>
+  <div class="drawer-body">
+    <twig:CourseImages :course="course" />
+  </div>
+</dialog>

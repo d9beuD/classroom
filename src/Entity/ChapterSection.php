@@ -2,18 +2,30 @@
 
 namespace App\Entity;
 
-use App\EntityEnum\ChapterSectionLanguage;
 use App\EntityEnum\ChapterSectionType;
-use App\EntityEnum\ChapterSectionVariant;
 use App\Repository\ChapterSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * A block of a chapter. The subclass is the section type, stored in the `type` column.
+ */
 #[ORM\Entity(repositoryClass: ChapterSectionRepository::class)]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string')]
+#[ORM\DiscriminatorMap([
+    ChapterSectionType::Content->value => Content::class,
+    ChapterSectionType::Heading->value => Title::class,
+    ChapterSectionType::Quote->value => Quote::class,
+    ChapterSectionType::Code->value => Code::class,
+    ChapterSectionType::Mermaid->value => Mermaid::class,
+    ChapterSectionType::Callout->value => Callout::class,
+])]
 #[ORM\HasLifecycleCallbacks]
-class ChapterSection
+abstract class ChapterSection
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -35,19 +47,6 @@ class ChapterSection
     #[ORM\ManyToOne(inversedBy: 'sections')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Chapter $chapter = null;
-
-    #[ORM\Column(enumType: ChapterSectionType::class)]
-    private ?ChapterSectionType $type = null;
-
-    #[ORM\Column(nullable: true, enumType: ChapterSectionVariant::class)]
-    private ?ChapterSectionVariant $variant = null;
-
-    #[ORM\Column(nullable: true, enumType: ChapterSectionLanguage::class)]
-    private ?ChapterSectionLanguage $language = null;
-
-    /** Heading level (2 to 6) of a heading section; null for other types. */
-    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
-    private ?int $level = null;
 
     #[ORM\Column]
     private ?int $position = null;
@@ -132,53 +131,7 @@ class ChapterSection
         return $this;
     }
 
-    public function getType(): ?ChapterSectionType
-    {
-        return $this->type;
-    }
-
-    public function setType(ChapterSectionType $type): static
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    public function getVariant(): ?ChapterSectionVariant
-    {
-        return $this->variant;
-    }
-
-    public function setVariant(?ChapterSectionVariant $variant): static
-    {
-        $this->variant = $variant;
-
-        return $this;
-    }
-
-    public function getLanguage(): ?ChapterSectionLanguage
-    {
-        return $this->language;
-    }
-
-    public function setLanguage(?ChapterSectionLanguage $language): static
-    {
-        $this->language = $language;
-
-        return $this;
-    }
-
-    public function getLevel(): ?int
-    {
-        return $this->level;
-    }
-
-    public function setLevel(?int $level): static
-    {
-        $this->level = $level;
-
-        return $this;
-    }
+    abstract public function getType(): ChapterSectionType;
 
     public function getPosition(): ?int
     {
@@ -199,8 +152,13 @@ class ChapterSection
 
     // Only fires when one of the section's own columns changed, so untouched sections keep their date.
     #[ORM\PreUpdate]
-    public function touch(): void
+    public function touch(PreUpdateEventArgs $args): void
     {
+        // Filling the render cache is not an edit.
+        if ([] === array_diff(array_keys($args->getEntityChangeSet()), ['renderedHash', 'renderedContent'])) {
+            return;
+        }
+
         $this->updatedAt = new \DateTimeImmutable();
     }
 }

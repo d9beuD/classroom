@@ -374,3 +374,10 @@ button[data-sortable-handle]:active {
     filter: none;
   }
 }
+
+/* Course images aside (chapter editing): thumbnails beside the file name. */
+.course-images img {
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--bs-border-radius);
+}

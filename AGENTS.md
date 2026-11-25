@@ -37,11 +37,10 @@ Already decided, don't ask:
   compiled by `sensiolabs/typescript-bundle` and typed by `tsconfig.json`
   (`strict`). The remaining `.js` files are recipe-generated; leave them. Add
   third-party packages with `bin/console importmap:require <pkg>`, not npm.
-- **Icons are Lucide.** Use `<i data-lucide="icon-name"></i>` in Twig. Every
-  icon must be imported and added to the `icons` object in
-  `assets/controllers/bootstrap_controller.ts` (PascalCase name, e.g.
-  `CalendarPlus` for `calendar-plus`), or it won't render. Keep that list
-  alphabetical.
+- **Icons are Lucide.** Use `<i data-lucide="icon-name"></i>` in Twig, or in
+  chapter section content. `assets/controllers/bootstrap_controller.ts` renders
+  every Lucide icon, so any name from https://lucide.dev/icons works with
+  nothing to register.
 - **Twig Components first.** A reusable piece of UI is a Twig Component
   (`src/Twig/Components/` + `templates/components/`), or a Live Component when
   it needs server round-trips, rather than an `include` or a macro.
@@ -133,6 +132,17 @@ a controller or a service call for a service, not just "it didn't throw."
 Symfony's coding standard, the `@Symfony` php-cs-fixer ruleset (a PSR-12-derived
 superset). Run `vendor/bin/php-cs-fixer fix` if `friendsofphp/php-cs-fixer` is
 installed; it isn't part of the skeleton by default.
+
+## Commits and pull requests
+
+Commit messages and pull request titles follow
+[Conventional Commits](https://www.conventionalcommits.org/): `feat: …`,
+`fix(chapter): …`, `feat!: …` for a breaking change, `chore:`/`ci:`/`docs:`/
+`refactor:`/`test:` for the rest. Release Please reads them to pick the next
+version and write the changelog, and each release deploys to production; a
+commit without a type is left out of both. A CI check rejects a pull request
+whose title doesn't comply, and a squash merge uses that title as the commit
+message.
 
 ## Discover, don't guess
 

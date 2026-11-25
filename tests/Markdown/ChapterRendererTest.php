@@ -2,10 +2,15 @@
 
 namespace App\Tests\Markdown;
 
+use App\Entity\Callout;
 use App\Entity\Chapter;
 use App\Entity\ChapterSection;
+use App\Entity\Code;
+use App\Entity\Content;
+use App\Entity\Mermaid;
+use App\Entity\Quote;
+use App\Entity\Title;
 use App\EntityEnum\ChapterSectionLanguage;
-use App\EntityEnum\ChapterSectionType;
 use App\EntityEnum\ChapterSectionVariant;
 use App\Markdown\ChapterRenderer;
 use App\Markdown\RendererClient;
@@ -28,13 +33,21 @@ final class ChapterRendererTest extends TestCase
      * @param list<ChapterSection>                                                       $sections
      * @param (callable(string $path, array<string, mixed> $payload): MockResponse)|null $service  answers of the renderer service; null: it is down
      */
-    private function render(array $sections, ?callable $service = null): string
+    private function render(array $sections, ?callable $service = null, bool $force = false): string
     {
         $chapter = new Chapter();
         foreach ($sections as $section) {
             $chapter->addSection($section);
         }
 
+        return $this->renderer($service)->render($chapter, $force);
+    }
+
+    /**
+     * @param (callable(string $path, array<string, mixed> $payload): MockResponse)|null $service
+     */
+    private function renderer(?callable $service): ChapterRenderer
+    {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($service): MockResponse {
             $path = (string) parse_url($url, \PHP_URL_PATH);
             $payload = json_decode($options['body'], true);
@@ -43,19 +56,32 @@ final class ChapterRendererTest extends TestCase
             return $service ? $service($path, $payload) : new MockResponse('', ['http_code' => 503]);
         });
 
-        return new ChapterRenderer(new RendererClient($httpClient, 'http://renderer:3000', new NullLogger()))->render($chapter);
+        return new ChapterRenderer(new RendererClient($httpClient, 'http://renderer:3000', new NullLogger()));
     }
 
-    private function section(ChapterSectionType $type, string $content, int $position = 0): ChapterSection
+    // A method, as PHPStan would narrow $this->requests after a first assertion on it.
+    private function requestCount(): int
     {
-        return new ChapterSection()->setType($type)->setContent($content)->setPosition($position);
+        return \count($this->requests);
+    }
+
+    /**
+     * @template T of ChapterSection
+     *
+     * @param T $section
+     *
+     * @return T
+     */
+    private function section(ChapterSection $section, string $content, int $position = 0): ChapterSection
+    {
+        return $section->setContent($content)->setPosition($position);
     }
 
     public function testSectionsAreRenderedInPositionOrder(): void
     {
         $html = $this->render([
-            $this->section(ChapterSectionType::Paragraph, 'Second', 1),
-            $this->section(ChapterSectionType::Paragraph, 'First', 0),
+            $this->section(new Content(), 'Second', 1),
+            $this->section(new Content(), 'First', 0),
         ]);
 
         $this->assertSame("<p>First</p>\n<p>Second</p>\n", $html);
@@ -63,7 +89,7 @@ final class ChapterRendererTest extends TestCase
 
     public function testCodeFallsBackToAFencedBlockWithItsLanguage(): void
     {
-        $code = $this->section(ChapterSectionType::Code, "<?php\necho \$a;")->setLanguage(ChapterSectionLanguage::Php);
+        $code = $this->section(new Code(), "<?php\necho \$a;")->setLanguage(ChapterSectionLanguage::Php);
 
         $this->assertSame(
             "<pre><code class=\"language-php\">&lt;?php\necho \$a;\n</code></pre>\n",
@@ -73,14 +99,14 @@ final class ChapterRendererTest extends TestCase
 
     public function testBackticksInCodeDoNotCloseTheFence(): void
     {
-        $html = $this->render([$this->section(ChapterSectionType::Code, "Use ```php to start a block.\n````\nstill code")]);
+        $html = $this->render([$this->section(new Code(), "Use ```php to start a block.\n````\nstill code")]);
 
         $this->assertSame("<pre><code>Use ```php to start a block.\n````\nstill code\n</code></pre>\n", $html);
     }
 
     public function testCodeLooksLikeMarkdownIsNotInterpreted(): void
     {
-        $code = $this->section(ChapterSectionType::Code, '# Not a title')->setLanguage(ChapterSectionLanguage::Markdown);
+        $code = $this->section(new Code(), '# Not a title')->setLanguage(ChapterSectionLanguage::Markdown);
 
         $this->assertSame("<pre><code class=\"language-markdown\"># Not a title\n</code></pre>\n", $this->render([$code]));
     }
@@ -89,37 +115,58 @@ final class ChapterRendererTest extends TestCase
     {
         $this->assertSame(
             "<pre><code class=\"language-mermaid\">flowchart LR\n  A --&gt; B\n</code></pre>\n",
-            $this->render([$this->section(ChapterSectionType::Mermaid, "flowchart LR\n  A --> B")]),
+            $this->render([$this->section(new Mermaid(), "flowchart LR\n  A --> B")]),
         );
     }
 
     public function testHeadingUsesItsLevelOnOneLine(): void
     {
-        $heading = $this->section(ChapterSectionType::Heading, "Mise en\nplace")->setLevel(3);
+        $heading = $this->section(new Title(), "Mise en\nplace")->setLevel(3);
 
         $this->assertSame("<h3>Mise en place</h3>\n", $this->render([$heading]));
-        $this->assertSame("<h2>Sans niveau</h2>\n", $this->render([$this->section(ChapterSectionType::Heading, 'Sans niveau')]));
+        $this->assertSame("<h2>Sans niveau</h2>\n", $this->render([$this->section(new Title(), 'Sans niveau')]));
     }
 
     public function testQuoteKeepsAllItsLines(): void
     {
         $this->assertSame(
             "<blockquote>\n<p>Ligne 1</p>\n<p>Ligne 2</p>\n</blockquote>\n",
-            $this->render([$this->section(ChapterSectionType::Quote, "Ligne 1\n\nLigne 2")]),
+            $this->render([$this->section(new Quote(), "Ligne 1\n\nLigne 2")]),
         );
     }
 
     public function testCalloutIsWrappedWithItsVariant(): void
     {
-        $callout = $this->section(ChapterSectionType::Callout, 'Attention **ici**')->setVariant(ChapterSectionVariant::Warning);
+        $callout = $this->section(new Callout(), 'Attention **ici**')->setVariant(ChapterSectionVariant::Warning);
 
         $this->assertSame("<div class=\"alert theme-warning\">\n<p>Attention <strong>ici</strong></p>\n</div>\n", $this->render([$callout]));
     }
 
+    public function testLucideIconTagIsKeptOutsideCode(): void
+    {
+        $icon = '<i data-lucide="settings"></i>';
+        $raw = '<i data-lucide="settings" aria-hidden="true"></i>';
+
+        $this->assertSame("<p>La roue dentée {$raw} en bas</p>\n", $this->render([$this->section(new Content(), "La roue dentée {$icon} en bas")]));
+        $this->assertSame("<h2>{$raw} Réglages</h2>\n", $this->render([$this->section(new Title(), "{$icon} Réglages")]));
+        $this->assertStringContainsString($raw, $this->render([$this->section(new Callout(), "Voir {$icon}")]));
+        $this->assertSame(
+            "<p><code>&lt;i data-lucide=&quot;settings&quot;&gt;&lt;/i&gt;</code></p>\n",
+            $this->render([$this->section(new Content(), "`{$icon}`")]),
+        );
+    }
+
+    public function testOtherIconLikeTagsStayEscaped(): void
+    {
+        foreach (['<i data-lucide="settings" onclick="alert(1)"></i>', '<i data-lucide="x"><b>y</b></i>', '<I DATA-LUCIDE="SETTINGS"></I>'] as $tag) {
+            $this->assertSame('<p>'.htmlspecialchars($tag, \ENT_NOQUOTES)."</p>\n", $this->render([$this->section(new Content(), $tag)]), $tag);
+        }
+    }
+
     public function testRawHtmlAndUnsafeLinksAreNeutralised(): void
     {
-        $script = $this->render([$this->section(ChapterSectionType::Paragraph, '<script>alert(1)</script>')]);
-        $link = $this->render([$this->section(ChapterSectionType::Paragraph, 'Un [lien](javascript:alert) piégé')]);
+        $script = $this->render([$this->section(new Content(), '<script>alert(1)</script>')]);
+        $link = $this->render([$this->section(new Content(), 'Un [lien](javascript:alert) piégé')]);
 
         $this->assertStringNotContainsString('<script>', $script);
         $this->assertStringContainsString('<a', $link);
@@ -128,12 +175,12 @@ final class ChapterRendererTest extends TestCase
 
     public function testEmptySectionsAreSkipped(): void
     {
-        $this->assertSame('', $this->render([$this->section(ChapterSectionType::Paragraph, "  \n ")]));
+        $this->assertSame('', $this->render([$this->section(new Content(), "  \n ")]));
     }
 
     public function testCodeIsHighlightedByTheRendererService(): void
     {
-        $code = $this->section(ChapterSectionType::Code, "echo \$a;\n")->setLanguage(ChapterSectionLanguage::Php);
+        $code = $this->section(new Code(), "echo \$a;\n")->setLanguage(ChapterSectionLanguage::Php);
 
         $html = $this->render([$code], fn (): MockResponse => new JsonMockResponse(['html' => '<pre class="shiki">php</pre>']));
 
@@ -143,7 +190,7 @@ final class ChapterRendererTest extends TestCase
 
     public function testCodeWithoutLanguageIsHighlightedAsPlainText(): void
     {
-        $this->render([$this->section(ChapterSectionType::Code, 'x')], fn (): MockResponse => new JsonMockResponse(['html' => '']));
+        $this->render([$this->section(new Code(), 'x')], fn (): MockResponse => new JsonMockResponse(['html' => '']));
 
         $this->assertSame([['/highlight', ['code' => 'x', 'lang' => '']]], $this->requests);
     }
@@ -152,23 +199,57 @@ final class ChapterRendererTest extends TestCase
     {
         $html = $this->render(
             [
-                $this->section(ChapterSectionType::Mermaid, 'flowchart LR', 0),
-                $this->section(ChapterSectionType::Mermaid, 'pie', 1),
+                $this->section(new Mermaid(), 'flowchart LR', 0),
+                $this->section(new Mermaid(), 'pie', 1),
             ],
             fn (string $path, array $payload): MockResponse => new JsonMockResponse(['svg' => '<svg id="'.$payload['svgId'].'" theme="'.$payload['theme'].'"/>']),
         );
 
-        $figure = fn (int $n): string => "<figure class=\"mermaid-diagram\">\n"
-            ."<div class=\"mermaid-light\"><svg id=\"mermaid-$n-light\" theme=\"light\"/></div>\n"
-            ."<div class=\"mermaid-dark\"><svg id=\"mermaid-$n-dark\" theme=\"dark\"/></div>\n"
-            ."</figure>\n";
-        $this->assertSame($figure(1).$figure(2), $html);
+        $figure = function (string $code): string {
+            $id = 'mermaid-'.substr(hash('xxh128', $code), 0, 12);
+
+            return "<figure class=\"mermaid-diagram\">\n"
+                ."<div class=\"mermaid-light\"><svg id=\"$id-light\" theme=\"light\"/></div>\n"
+                ."<div class=\"mermaid-dark\"><svg id=\"$id-dark\" theme=\"dark\"/></div>\n"
+                ."</figure>\n";
+        };
+        $this->assertSame($figure('flowchart LR').$figure('pie'), $html);
+    }
+
+    public function testUnchangedDiagramIsNotRenderedAgain(): void
+    {
+        $diagram = $this->section(new Mermaid(), 'pie');
+        $service = fn (): MockResponse => new JsonMockResponse(['svg' => '<svg/>']);
+
+        $first = $this->render([$diagram], $service);
+        $second = $this->render([$diagram], $service);
+
+        $this->assertSame($first, $second);
+        $this->assertSame(2, $this->requestCount(), 'Only the first render calls the service (light + dark).');
+
+        $diagram->setContent('flowchart LR');
+        $this->render([$diagram], $service);
+        $this->assertSame(4, $this->requestCount(), 'Changed code is rendered again.');
+
+        $this->render([$diagram], $service, force: true);
+        $this->assertSame(6, $this->requestCount(), 'A forced render ignores the stored diagram.');
+    }
+
+    public function testFailedDiagramIsNotStored(): void
+    {
+        $diagram = $this->section(new Mermaid(), 'pie');
+
+        $this->render([$diagram]);
+        $this->assertNull($diagram->getRenderedHash());
+
+        $html = $this->render([$diagram], fn (): MockResponse => new JsonMockResponse(['svg' => '<svg/>']));
+        $this->assertStringContainsString('<figure class="mermaid-diagram">', $html);
     }
 
     public function testDiagramFallsBackToItsCodeWhenTheDarkRenderingFails(): void
     {
         $html = $this->render(
-            [$this->section(ChapterSectionType::Mermaid, 'pie')],
+            [$this->section(new Mermaid(), 'pie')],
             fn (string $path, array $payload): MockResponse => 'dark' === $payload['theme']
                 ? new MockResponse('', ['http_code' => 503])
                 : new JsonMockResponse(['svg' => '<svg/>']),
@@ -180,7 +261,7 @@ final class ChapterRendererTest extends TestCase
     public function testInvalidDiagramFallsBackToItsCode(): void
     {
         $html = $this->render(
-            [$this->section(ChapterSectionType::Mermaid, 'flowchart LR\n  A -->')],
+            [$this->section(new Mermaid(), 'flowchart LR\n  A -->')],
             fn (): MockResponse => new JsonMockResponse(['error' => 'Parse error'], ['http_code' => 422]),
         );
 
@@ -189,7 +270,7 @@ final class ChapterRendererTest extends TestCase
 
     public function testOtherSectionsDoNotCallTheRendererService(): void
     {
-        $this->render([$this->section(ChapterSectionType::Paragraph, 'Texte')]);
+        $this->render([$this->section(new Content(), 'Texte')]);
 
         $this->assertSame([], $this->requests);
     }

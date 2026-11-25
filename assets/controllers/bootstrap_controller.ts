@@ -1,23 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import { Drawer, Strength } from 'bootstrap';
-import { createIcons, ArrowRight, CalendarClock, CalendarPlus, ChevronDown, Code, Eye, GraduationCap, GripVertical, Presentation, Plus, Trash, User } from 'lucide';
+import { createIcons, icons } from 'lucide';
 
-const renderIcons = () => createIcons({
-  icons: {
-    ArrowRight,
-    CalendarClock,
-    CalendarPlus,
-    ChevronDown,
-    Code,
-    Eye,
-    GraduationCap,
-    GripVertical,
-    Plus,
-    Presentation,
-    Trash,
-    User,
-  }
-})
+// Every icon, so any <i data-lucide> in templates or chapter content renders. AssetMapper doesn't tree-shake,
+// so the whole lucide module is downloaded either way.
+const renderIcons = () => createIcons({ icons })
 
 // Live component re-renders bring back raw <i data-lucide> tags, so icons are rendered again after each one.
 const onLiveConnect = (event: Event) => {

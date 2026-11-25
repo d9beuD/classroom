@@ -84,13 +84,13 @@ ENV APP_VERSION=${APP_VERSION}
 
 COPY --chown=${USER}:${USER} . /app
 
-# Only var/ and tmp/ are written at runtime: a recursive chown of /app would store vendor/ twice.
-RUN mkdir -p /app/var/cache/prod/pools/system /app/var/log /app/var/sass /app/tmp && \
+# Only var/, tmp/ and public/uploads/ (course images: mount a volume there) are written at runtime: a recursive chown of /app would store vendor/ twice.
+RUN mkdir -p /app/var/cache/prod/pools/system /app/var/log /app/var/sass /app/tmp /app/public/uploads && \
 	composer run-script post-install-cmd --no-interaction && \
 	php bin/console typescript:build --no-interaction && \
 	php bin/console asset-map:compile --no-interaction && \
 	rm -f var/swc-* && \
-	chown -R "${USER}:${USER}" /app/var /app/tmp
+	chown -R "${USER}:${USER}" /app/var /app/tmp /app/public/uploads
 
 EXPOSE 3000
 

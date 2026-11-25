@@ -4,8 +4,7 @@ namespace App\Tests\Command;
 
 use App\Command\RenderChaptersCommand;
 use App\Entity\Chapter;
-use App\Entity\ChapterSection;
-use App\EntityEnum\ChapterSectionType;
+use App\Entity\Content;
 use App\Markdown\ChapterRenderer;
 use App\Markdown\RendererClient;
 use App\Repository\ChapterRepository;
@@ -21,9 +20,9 @@ final class RenderChaptersCommandTest extends TestCase
     public function testEveryChapterIsRenderedAgainAndSaved(): void
     {
         $chapters = [
-            new Chapter()->addSection(new ChapterSection()->setType(ChapterSectionType::Paragraph)->setContent('Un')->setPosition(0)),
+            new Chapter()->addSection(new Content()->setContent('Un')->setPosition(0)),
             new Chapter()->setRenderedContent('<p>Ancien rendu</p>')
-                ->addSection(new ChapterSection()->setType(ChapterSectionType::Paragraph)->setContent('Deux')->setPosition(0)),
+                ->addSection(new Content()->setContent('Deux')->setPosition(0)),
         ];
 
         $repository = $this->createStub(ChapterRepository::class);

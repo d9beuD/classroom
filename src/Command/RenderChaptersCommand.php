@@ -27,7 +27,7 @@ final readonly class RenderChaptersCommand
         $chapters = $this->chapters->findAll();
 
         foreach ($io->progressIterate($chapters) as $chapter) {
-            $chapter->setRenderedContent($this->renderer->render($chapter));
+            $chapter->setRenderedContent($this->renderer->render($chapter, force: true));
         }
         $this->entityManager->flush();
 
