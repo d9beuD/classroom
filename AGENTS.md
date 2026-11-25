@@ -37,11 +37,10 @@ Already decided, don't ask:
   compiled by `sensiolabs/typescript-bundle` and typed by `tsconfig.json`
   (`strict`). The remaining `.js` files are recipe-generated; leave them. Add
   third-party packages with `bin/console importmap:require <pkg>`, not npm.
-- **Icons are Lucide.** Use `<i data-lucide="icon-name"></i>` in Twig. Every
-  icon must be imported and added to the `icons` object in
-  `assets/controllers/bootstrap_controller.ts` (PascalCase name, e.g.
-  `CalendarPlus` for `calendar-plus`), or it won't render. Keep that list
-  alphabetical.
+- **Icons are Lucide.** Use `<i data-lucide="icon-name"></i>` in Twig, or in
+  chapter section content. `assets/controllers/bootstrap_controller.ts` renders
+  every Lucide icon, so any name from https://lucide.dev/icons works with
+  nothing to register.
 - **Twig Components first.** A reusable piece of UI is a Twig Component
   (`src/Twig/Components/` + `templates/components/`), or a Live Component when
   it needs server round-trips, rather than an `include` or a macro.
