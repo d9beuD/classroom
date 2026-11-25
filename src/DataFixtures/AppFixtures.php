@@ -48,6 +48,12 @@ class AppFixtures extends Fixture
             ->addSection(new Code()->setLanguage(ChapterSectionLanguage::Html)->setContent('<p>Bonjour</p>')->setPosition(3))
             ->addSection(new Mermaid()->setContent("flowchart LR\n  SGML --> HTML")->setPosition(4))
             ->addSection(new Callout()->setVariant(ChapterSectionVariant::Info)->setContent('HTML n’est pas un langage de programmation.')->setPosition(5)));
+        $manager->persist(new Chapter()->setTitle('Balises et attributs')->setExcerpt('La syntaxe du HTML.')->setCourse($course)->setPosition(1));
+
+        // A second course, so the chapter navigation can be shown to stay inside its course.
+        $css = new Course()->setLabel('CSS')->setIcon('palette')->setIconColor('#663399')->setIconColorAlt('#ffffff');
+        $manager->persist($css);
+        $manager->persist(new Chapter()->setTitle('Sélecteurs')->setExcerpt('Cibler les éléments.')->setCourse($css)->setPosition(0));
 
         $manager->flush();
     }

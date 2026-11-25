@@ -1,8 +1,13 @@
 name: Deploy
 
-# Run from the Actions tab, or via the API:
+# Runs on each release (called by release-please.yml), from the Actions tab, or via the API:
 # POST /repos/{owner}/{repo}/actions/workflows/deploy.yml/dispatches {"ref":"main","inputs":{"deploy-renderer":true}}
 on:
+  workflow_call:
+    inputs:
+      deploy-renderer:
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       deploy-renderer:

@@ -49,6 +49,20 @@ final class ChapterControllerTest extends WebTestCase
         self::assertSelectorExists('button[data-bs-toggle=drawer][data-bs-target="#course-images-drawer"]');
     }
 
+    public function testChapterLinksToItsNeighboursInTheSameCourseOnly(): void
+    {
+        $client = self::createClient();
+
+        $client->request('GET', '/course/html/chapter/histoire-et-contexte');
+        self::assertSelectorNotExists('a[rel=prev]');
+        self::assertSelectorExists('a[rel=next][href="/course/html/chapter/balises-et-attributs"]');
+
+        // The last chapter of HTML must not lead into the CSS course.
+        $client->request('GET', '/course/html/chapter/balises-et-attributs');
+        self::assertSelectorExists('a[rel=prev][href="/course/html/chapter/histoire-et-contexte"]');
+        self::assertSelectorNotExists('a[rel=next]');
+    }
+
     public function testInvalidCsrfTokenIsShownOnTheEditForm(): void
     {
         $client = self::createClient();

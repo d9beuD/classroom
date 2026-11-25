@@ -58,4 +58,32 @@
     <article class="chapter-content mt-5" data-controller="code-copy">
       {{ chapter.renderedContent|raw }}
     </article>
+
+    {% set previous = chapter.sibling(-1) %}
+    {% set next = chapter.sibling(1) %}
+    {% if previous or next %}
+      <nav class="py-9 mt-9 border-top d-print-none" aria-label="Chapitres">
+        <div class="row g-3 md:g-5 lh-1">
+          {% if previous %}
+            <div class="col-12 md:col-6">
+              <a href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: previous.slug }) }}" class="d-flex flex-column gap-2 p-5 h-100 text-decoration-none border rounded-5" rel="prev">
+                <div class="fg-3">← Précédent</div>
+                <div class="fw-semibold">{{ previous.title }}</div>
+                <div class="fg-3">{{ course.label }}</div>
+              </a>
+            </div>
+          {% endif %}
+          {% if next %}
+            {# ms-auto keeps a lone next card on the right. #}
+            <div class="col-12 md:col-6 ms-auto">
+              <a href="{{ path('app_chapter_show', { courseSlug: course.slug, chapterSlug: next.slug }) }}" class="d-flex flex-column gap-2 p-5 h-100 text-decoration-none text-end border rounded-5" rel="next">
+                <div class="fg-3">Suivant →</div>
+                <div class="fw-semibold">{{ next.title }}</div>
+                <div class="fg-3">{{ course.label }}</div>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </nav>
+    {% endif %}
 {% endblock %}
