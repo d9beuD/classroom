@@ -1,10 +1,9 @@
 name: PR title
 
-# PRs are squash-merged with their title as the commit message, which release-please reads:
-# the title must be a conventional commit (e.g. "feat: …", "fix!: …").
+# Release Please reads Conventional Commits, and a squash merge uses the PR title as the commit message.
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, reopened, edited, synchronize]
 
 permissions: {}
 
