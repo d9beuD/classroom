@@ -130,6 +130,27 @@ final class ChapterRendererTest extends TestCase
         $this->assertSame("<div class=\"alert theme-warning\">\n<p>Attention <strong>ici</strong></p>\n</div>\n", $this->render([$callout]));
     }
 
+    public function testLucideIconTagIsKeptOutsideCode(): void
+    {
+        $icon = '<i data-lucide="settings"></i>';
+        $raw = '<i data-lucide="settings" aria-hidden="true"></i>';
+
+        $this->assertSame("<p>La roue dentée {$raw} en bas</p>\n", $this->render([$this->section(ChapterSectionType::Paragraph, "La roue dentée {$icon} en bas")]));
+        $this->assertSame("<h2>{$raw} Réglages</h2>\n", $this->render([$this->section(ChapterSectionType::Heading, "{$icon} Réglages")]));
+        $this->assertStringContainsString($raw, $this->render([$this->section(ChapterSectionType::Callout, "Voir {$icon}")]));
+        $this->assertSame(
+            "<p><code>&lt;i data-lucide=&quot;settings&quot;&gt;&lt;/i&gt;</code></p>\n",
+            $this->render([$this->section(ChapterSectionType::Paragraph, "`{$icon}`")]),
+        );
+    }
+
+    public function testOtherIconLikeTagsStayEscaped(): void
+    {
+        foreach (['<i data-lucide="settings" onclick="alert(1)"></i>', '<i data-lucide="x"><b>y</b></i>', '<I DATA-LUCIDE="SETTINGS"></I>'] as $tag) {
+            $this->assertSame('<p>'.htmlspecialchars($tag, \ENT_NOQUOTES)."</p>\n", $this->render([$this->section(ChapterSectionType::Paragraph, $tag)]), $tag);
+        }
+    }
+
     public function testRawHtmlAndUnsafeLinksAreNeutralised(): void
     {
         $script = $this->render([$this->section(ChapterSectionType::Paragraph, '<script>alert(1)</script>')]);

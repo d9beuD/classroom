@@ -1,7 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 import { Drawer, Strength } from 'bootstrap';
-import { createIcons, ArrowRight, CalendarClock, CalendarPlus, ChevronDown, Code, Eye, GraduationCap, GripVertical, Presentation, Plus, Trash, User } from 'lucide';
+import { createIcons, ArrowRight, CalendarClock, CalendarPlus, ChevronDown, Code, Eye, GraduationCap, GripVertical, Presentation, Plus, Settings, Trash, User } from 'lucide';
 
+// shortcut: an icon used in chapter content renders only if listed here; add each new name, or load icons on demand if authors use many.
 const renderIcons = () => createIcons({
   icons: {
     ArrowRight,
@@ -14,6 +15,7 @@ const renderIcons = () => createIcons({
     GripVertical,
     Plus,
     Presentation,
+    Settings,
     Trash,
     User,
   }

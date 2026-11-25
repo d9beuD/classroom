@@ -16,7 +16,7 @@ use League\CommonMark\MarkdownConverter;
  *
  * Each section is one Markdown block; headings get their # prefix from the section level, quotes
  * their > prefix, and callouts a wrapper div coloured by their variant. Raw HTML written in a
- * section is escaped.
+ * section is escaped, except a Lucide icon tag (see LucideIconSyntax).
  *
  * Code and Mermaid sections hold raw code (no ``` fence). They are rendered by the renderer
  * service (Shiki highlighting, Mermaid SVG in a light and a dark theme); if it fails, they fall back to a fenced code block.
@@ -37,6 +37,9 @@ final class ChapterRenderer
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new GithubFlavoredMarkdownExtension());
+        $icons = new LucideIconSyntax();
+        $environment->addInlineParser($icons, 100);
+        $environment->addRenderer(LucideIcon::class, $icons);
 
         $this->converter = new MarkdownConverter($environment);
     }
