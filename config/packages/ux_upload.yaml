@@ -1,0 +1,8 @@
+ux_upload:
+    uploaders:
+        # Chapter illustrations, served from public/: no SVG (it can carry scripts).
+        course_images:
+            max_size: 10M
+            allowed_types: [image/png, image/jpeg, image/webp, image/gif]
+            # Below PHP's default upload_max_filesize (2M), which also bounds direct (single request) uploads.
+            chunk_size: 1M

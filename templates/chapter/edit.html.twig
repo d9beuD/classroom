@@ -11,3 +11,7 @@
 
     {{ include('chapter/_delete_form.html.twig') }}
 {% endblock %}
+
+{% block toc %}
+  <twig:CourseImages :course="course" />
+{% endblock %}

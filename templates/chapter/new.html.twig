@@ -7,3 +7,7 @@
 
   {{ include('chapter/_form.html.twig') }}
 {% endblock %}
+
+{% block toc %}
+  <twig:CourseImages :course="course" />
+{% endblock %}

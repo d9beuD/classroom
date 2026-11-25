@@ -1,0 +1,26 @@
+<section{{ attributes.defaults(stimulus_controller('symfony/ux-upload/live-upload', { property: 'image', action: 'addImage' })|stimulus_controller('clipboard')) }} class="course-images vstack gap-3 my-4" aria-labelledby="course-images-title">
+  <h2 class="h6 mb-0" id="course-images-title">Images du cours</h2>
+
+  {# Replaced on each render: the widget's JS only reads its state on connect. #}
+  <div data-skip-morph>
+    {{ form_row(this.uploadForm.image) }}
+  </div>
+
+  {% if this.images is empty %}
+    <p class="text-body-secondary mb-0">Aucune image pour l'instant.</p>
+  {% else %}
+    <ul class="list-unstyled vstack gap-2 mb-0">
+      {% for image in this.images %}
+        <li>
+          <button type="button" class="btn-subtle w-100 justify-content-start text-start" title="Copier le lien Markdown"
+            data-action="clipboard#copy"
+            data-clipboard-text-param="![{{ image.name }}]({{ image.url }})">
+            <img src="{{ image.url }}" alt="" loading="lazy" width="48" height="48">
+            <span class="text-truncate">{{ image.name }}</span>
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="small text-body-secondary mb-0" id="course-images-status" role="status" data-clipboard-target="status" data-live-ignore></p>
+  {% endif %}
+</section>

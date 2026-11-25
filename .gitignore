@@ -31,3 +31,7 @@
 ###> phpstan/phpstan ###
 /phpstan.neon
 ###< phpstan/phpstan ###
+
+###> course images (CourseImageStorage) ###
+/public/uploads/
+###< course images ###

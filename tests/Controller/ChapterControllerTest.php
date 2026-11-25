@@ -6,11 +6,34 @@ use App\DataFixtures\AppFixtures;
 use App\Entity\Code;
 use App\EntityEnum\ChapterSectionLanguage;
 use App\Repository\ChapterSectionRepository;
+use App\Repository\CourseRepository;
 use App\Repository\UserRepository;
+use App\Tests\Storage\CourseImageStorageTest;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class ChapterControllerTest extends WebTestCase
 {
+    public function testEditPageListsCourseImagesWithTheirMarkdown(): void
+    {
+        $client = self::createClient();
+        $users = self::getContainer()->get(UserRepository::class);
+        $client->loginUser($users->findOneBy(['email' => AppFixtures::PROFESSOR_EMAIL]) ?? self::fail('Missing fixture user.'));
+        $course = self::getContainer()->get(CourseRepository::class)->findOneBy(['slug' => 'html']) ?? self::fail('Missing fixture course.');
+        $directory = CourseImageStorageTest::storeImage($course, 'Arbre.png', '0123456789abcdef');
+
+        try {
+            $client->request('GET', '/course/html/chapter/histoire-et-contexte/edit');
+
+            self::assertResponseIsSuccessful();
+            self::assertSelectorTextContains('.course-images h2', 'Images du cours');
+            self::assertSelectorExists('.course-images input[type=file]');
+            self::assertSelectorExists(\sprintf('.course-images [data-clipboard-text-param="![arbre](/uploads/courses/%d/arbre-01234567.png)"]', $course->getId()));
+        } finally {
+            new Filesystem()->remove($directory.'/arbre-01234567.png');
+        }
+    }
+
     public function testInvalidCsrfTokenIsShownOnTheEditForm(): void
     {
         $client = self::createClient();
