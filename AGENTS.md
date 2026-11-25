@@ -133,6 +133,17 @@ Symfony's coding standard, the `@Symfony` php-cs-fixer ruleset (a PSR-12-derived
 superset). Run `vendor/bin/php-cs-fixer fix` if `friendsofphp/php-cs-fixer` is
 installed; it isn't part of the skeleton by default.
 
+## Commits and pull requests
+
+Commit messages and pull request titles follow
+[Conventional Commits](https://www.conventionalcommits.org/): `feat: …`,
+`fix(chapter): …`, `feat!: …` for a breaking change, `chore:`/`ci:`/`docs:`/
+`refactor:`/`test:` for the rest. Release Please reads them to pick the next
+version and write the changelog, and each release deploys to production; a
+commit without a type is left out of both. A CI check rejects a pull request
+whose title doesn't comply, and a squash merge uses that title as the commit
+message.
+
 ## Discover, don't guess
 
 Framework APIs change between versions and your training data may be stale. Look
